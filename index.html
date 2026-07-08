@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>生物統計研究設計助手 — Jekel's Biostatistics (Section 2)</title>
+<style>
+  :root{
+    --bg:#f4f6fb; --card:#ffffff; --ink:#1f2733; --muted:#5b6675;
+    --brand:#2b5fa6; --brand2:#3f8ad0; --accent:#0f9d7e; --accent2:#e8f6f1;
+    --warn:#d97706; --bad:#c23b3b; --good:#128a5a;
+    --line:#e2e7f0; --chip:#eef3fb; --shadow:0 2px 10px rgba(30,50,90,.07);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",Segoe UI,system-ui,sans-serif;
+       background:var(--bg);color:var(--ink);line-height:1.7;-webkit-font-smoothing:antialiased}
+  header.top{background:linear-gradient(120deg,#23477e,#3f8ad0);color:#fff;padding:26px 20px 20px}
+  header.top h1{margin:0 0 4px;font-size:22px;letter-spacing:.5px}
+  header.top p{margin:0;opacity:.9;font-size:13.5px}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 16px}
+  nav.tabs{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);
+           display:flex;flex-wrap:wrap;gap:4px;padding:8px 10px;box-shadow:var(--shadow)}
+  nav.tabs button{border:0;background:transparent;color:var(--muted);font-size:14px;font-weight:600;
+        padding:9px 13px;border-radius:9px;cursor:pointer;font-family:inherit;transition:.15s}
+  nav.tabs button:hover{background:var(--chip);color:var(--ink)}
+  nav.tabs button.active{background:var(--brand);color:#fff}
+  main{padding:22px 0 60px}
+  section.view{display:none;animation:fade .25s ease}
+  section.view.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;margin:0 0 18px;box-shadow:var(--shadow)}
+  h2.title{font-size:20px;margin:0 0 4px;color:var(--brand)}
+  .sub{color:var(--muted);font-size:13.5px;margin:0 0 16px}
+  .pill{display:inline-block;background:var(--chip);color:var(--brand);border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600;margin-left:6px}
+  .en{color:var(--brand2);font-style:italic;font-weight:600}
+  .pg{color:var(--warn);font-weight:700;font-size:12.5px;white-space:nowrap}
+
+  /* ---- Selector wizard ---- */
+  .wizard{display:grid;grid-template-columns:1fr;gap:14px}
+  .q-block{border:1px solid var(--line);border-radius:12px;padding:16px 18px;background:#fbfcfe}
+  .q-block h3{margin:0 0 4px;font-size:15.5px}
+  .q-block .hint{font-size:12.5px;color:var(--muted);margin:0 0 12px}
+  .opts{display:flex;flex-wrap:wrap;gap:9px}
+  .opts button{border:1.5px solid var(--line);background:#fff;padding:9px 14px;border-radius:10px;cursor:pointer;
+        font-family:inherit;font-size:13.5px;color:var(--ink);transition:.12s;text-align:left}
+  .opts button:hover{border-color:var(--brand2);background:#f2f8ff}
+  .opts button.sel{border-color:var(--brand);background:var(--brand);color:#fff;box-shadow:0 2px 8px rgba(43,95,166,.3)}
+  .opts button small{display:block;font-size:11.5px;opacity:.8;font-weight:400;margin-top:2px}
+  .opts button.sel small{opacity:.9}
+  .result{margin-top:6px;border-radius:14px;border:2px solid var(--accent);background:var(--accent2);padding:20px}
+  .result.empty{border-color:var(--line);background:#fafbfd;color:var(--muted);text-align:center}
+  .result h3{margin:0 0 8px;color:var(--good);font-size:18px}
+  .result .rec{font-size:17px;font-weight:700;color:var(--ink);margin:6px 0}
+  .result .alt{font-size:14px;color:var(--muted);margin:4px 0}
+  .result .why{background:#fff;border-radius:10px;padding:12px 14px;margin-top:12px;font-size:13.5px;border:1px solid #cdeee2}
+  .reset{background:#fff;border:1px solid var(--line);color:var(--muted);padding:7px 14px;border-radius:9px;cursor:pointer;font-family:inherit;font-size:13px;margin-top:14px}
+  .reset:hover{border-color:var(--bad);color:var(--bad)}
+
+  /* ---- Handout ---- */
+  .goal-box{background:linear-gradient(120deg,#eef5ff,#f3fbf8);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:12px 16px;margin:0 0 16px}
+  .goal-box b{color:var(--brand)}
+  h3.sec{font-size:16px;margin:20px 0 8px;padding-bottom:5px;border-bottom:2px solid var(--chip);color:var(--ink)}
+  h3.sec .em{font-size:18px;margin-right:6px}
+  .term{border:1px solid var(--line);border-radius:10px;padding:11px 14px;margin:8px 0;background:#fbfcfe}
+  .term .t-name{font-weight:700;font-size:14.5px}
+  .term .t-def{font-size:13.5px;color:#38424f;margin-top:2px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  ul.clean{margin:6px 0;padding-left:20px}
+  ul.clean li{margin:5px 0;font-size:14px}
+  .ex{background:#fff8ee;border:1px solid #f2e0c0;border-radius:10px;padding:12px 15px;margin:8px 0;font-size:13.8px}
+  .ex b{color:var(--warn)}
+  .when{background:#eef7f3;border:1px solid #cde8dd;border-radius:10px;padding:12px 15px;font-size:13.8px}
+  table.ref{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+  table.ref th,table.ref td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+  table.ref th{background:var(--chip);color:var(--brand)}
+  .print-btn{background:var(--brand);color:#fff;border:0;padding:8px 15px;border-radius:9px;cursor:pointer;font-family:inherit;font-size:13px;float:right}
+  .print-btn:hover{background:#234c85}
+
+  /* ---- Quiz ---- */
+  .quiz-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+  .score{font-weight:700;color:var(--brand);font-size:14px}
+  .qitem{border:1px solid var(--line);border-radius:12px;padding:15px 17px;margin:12px 0;background:#fff}
+  .qitem .qq{font-weight:600;font-size:14.5px;margin-bottom:10px}
+  .qitem .qq span.n{display:inline-block;background:var(--brand);color:#fff;border-radius:6px;padding:1px 8px;font-size:12.5px;margin-right:8px}
+  .choice{display:block;border:1.5px solid var(--line);border-radius:9px;padding:9px 13px;margin:6px 0;cursor:pointer;font-size:13.8px;transition:.12s;background:#fdfdfe}
+  .choice:hover{border-color:var(--brand2);background:#f4f9ff}
+  .choice.correct{border-color:var(--good);background:#e9f8f0}
+  .choice.wrong{border-color:var(--bad);background:#fbecec}
+  .choice.disabled{cursor:default;pointer-events:none;opacity:.85}
+  .choice .k{font-weight:700;margin-right:7px;color:var(--brand)}
+  .explain{display:none;margin-top:9px;padding:10px 13px;border-radius:9px;background:#f1f5fb;font-size:13px;border-left:3px solid var(--brand2)}
+  .explain.show{display:block}
+  .explain b{color:var(--good)}
+  footer{text-align:center;color:var(--muted);font-size:12.5px;padding:20px}
+  @media(max-width:640px){.grid2{grid-template-columns:1fr}}
+  /* floating export button */
+  #pdfAll{position:fixed;right:18px;bottom:18px;z-index:50;background:var(--accent);color:#fff;border:0;
+      padding:12px 18px;border-radius:999px;cursor:pointer;font-family:inherit;font-size:14px;font-weight:700;
+      box-shadow:0 4px 16px rgba(15,157,126,.4)}
+  #pdfAll:hover{background:#0c8168}
+  @media print{
+    header.top,nav.tabs,.reset,footer,.no-print,#pdfAll{display:none!important}
+    body{background:#fff}
+    .card{box-shadow:none;border:1px solid #ccc;break-inside:avoid}
+    /* --- 匯出全部講義：顯示每一章講義、隱藏選擇器與測驗 --- */
+    body.printing-all .view{display:block!important;break-before:page}
+    body.printing-all #view-ch8{break-before:auto}
+    body.printing-all #view-selector{display:none!important}
+    body.printing-all .quiz-card{display:none!important}
+    /* --- 只列印單一章講義 --- */
+    body.printing-one .view{display:none!important}
+    body.printing-one .view.print-target{display:block!important}
+    body.printing-one .quiz-card{display:none!important}
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <h1>生物統計研究設計助手 <span style="font-size:13px;opacity:.85">Biostatistics Study Companion</span></h1>
+    <p>依據《Jekel's Epidemiology, Biostatistics, Preventive Medicine》Section 2（第 8–13 章）· 統計方法選擇器 + 白話學習講義 + 理解測驗</p>
+  </div>
+</header>
+
+<nav class="tabs wrap" id="tabs">
+  <button data-t="selector" class="active">🎯 統計方法選擇器</button>
+  <button data-t="ch8">第8章 資料分布</button>
+  <button data-t="ch9">第9章 假設檢定</button>
+  <button data-t="ch10">第10章 兩變項</button>
+  <button data-t="ch11">第11章 多變項</button>
+  <button data-t="ch12">第12章 研究設計</button>
+  <button data-t="ch13">第13章 臨床決策</button>
+</nav>
+
+<main class="wrap">
+
+<!-- ================= SELECTOR ================= -->
+<section id="view-selector" class="view active">
+  <div class="card">
+    <h2 class="title">🎯 統計方法選擇器 <span class="pill">Choosing an Appropriate Statistical Test</span></h2>
+    <p class="sub">回答下面幾個關於你資料的問題，工具會依照課本 Table 10.1（雙變項）與 Table 11.1（多變項）的邏輯，建議適當的統計方法。名詞皆附英文與白話說明。<b>先想清楚：你的「結果變項 / 依變項 (dependent / outcome variable)」是什麼？</b></p>
+
+    <div class="wizard">
+      <div class="q-block">
+        <h3>Q1. 你想分析幾個「自變項 / 預測變項」<span class="en">(independent / predictor variable)</span>？</h3>
+        <p class="hint">自變項＝你認為「可能造成影響」的那個因素（如：治療組別、年齡）。結果變項＝你關心的產出（如：血壓、存活）。</p>
+        <div class="opts" data-q="nIV">
+          <button data-v="1">只有 1 個自變項<small>雙變項分析 Bivariate（第10章）</small></button>
+          <button data-v="many">2 個以上自變項<small>多變項分析 Multivariable（第11章）</small></button>
+        </div>
+      </div>
+
+      <div class="q-block">
+        <h3>Q2. 你的「結果變項 (outcome variable)」是哪一種資料型態？</h3>
+        <p class="hint">這是決定統計方法最關鍵的一步。</p>
+        <div class="opts" data-q="dv">
+          <button data-v="cont">連續變項 Continuous<small>可測量的數值，如血壓、體重、血糖</small></button>
+          <button data-v="ord">順序變項 Ordinal<small>有順序的等第，如：很滿意 / 普通 / 不滿意</small></button>
+          <button data-v="dich">二分/名目變項 Dichotomous / Nominal<small>類別，如：存活 vs 死亡、有病 vs 無病、種族</small></button>
+          <button data-v="tte">存活/時間到事件 Time-to-event<small>關心「多久後發生某事件」，如存活時間、復發時間</small></button>
+        </div>
+      </div>
+
+      <div class="q-block" id="q3">
+        <h3>Q3. 你的「自變項 / 分組」是哪一種？</h3>
+        <div class="opts" data-q="iv">
+          <button data-v="cont">連續變項 Continuous<small>如：身高、年齡、劑量</small></button>
+          <button data-v="two">2 組類別 Two groups<small>如：治療組 vs 對照組</small></button>
+          <button data-v="multi">3 組以上類別 ≥3 groups<small>如：A藥 / B藥 / 安慰劑</small></button>
+        </div>
+      </div>
+
+      <div class="q-block" id="q4">
+        <h3>Q4. 兩組之間是「獨立」還是「配對 / 前後測」？</h3>
+        <p class="hint">同一個人測兩次（治療前 vs 治療後）、或一對一配對＝配對設計 (paired)；不同的獨立受試者＝獨立 (independent)。</p>
+        <div class="opts" data-q="paired">
+          <button data-v="indep">獨立樣本 Independent<small>兩組是不同的人</small></button>
+          <button data-v="paired">配對 / 前後測 Paired<small>同一批人測兩次，或配對比較</small></button>
+        </div>
+      </div>
+
+      <div class="q-block" id="q5">
+        <h3>Q5. 資料是否符合「常態分布」等假設，可用參數方法？</h3>
+        <p class="hint">參數方法 (parametric) 假設資料呈常態分布、樣本夠大；若資料偏斜、樣本小、或本身就是順序資料，選無母數 (nonparametric)。</p>
+        <div class="opts" data-q="param">
+          <button data-v="para">符合（用參數方法 Parametric）<small>資料近常態、樣本較大</small></button>
+          <button data-v="nonpara">不確定/不符合（用無母數 Nonparametric）<small>資料偏斜、樣本小、較保守</small></button>
+        </div>
+      </div>
+    </div>
+
+    <div id="rec" class="result empty">
+      👆 請從上方開始作答，我會即時建議適當的統計方法。
+    </div>
+    <button class="reset" onclick="resetWizard()">↺ 重新選擇</button>
+  </div>
+
+  <div class="card">
+    <h3 class="sec"><span class="em">🗺️</span>快速對照速查表 <span class="pg">課本 Table 10.1 (p.150) / Table 11.1 (p.174)</span></h3>
+    <table class="ref">
+      <tr><th>結果變項</th><th>自變項情境</th><th>建議方法</th></tr>
+      <tr><td>連續 Continuous</td><td>連續自變項</td><td>Pearson 相關係數 / 簡單線性迴歸 Linear regression</td></tr>
+      <tr><td>連續 Continuous</td><td>2 組（獨立）</td><td>兩樣本 t 檢定 Two-sample t-test（無母數：Mann-Whitney U）</td></tr>
+      <tr><td>連續 Continuous</td><td>2 組（配對/前後）</td><td>配對 t 檢定 Paired t-test（無母數：Wilcoxon signed-ranks）</td></tr>
+      <tr><td>連續 Continuous</td><td>≥3 組</td><td>變異數分析 ANOVA（無母數：Kruskal-Wallis）</td></tr>
+      <tr><td>順序 Ordinal</td><td>相關 / 分組</td><td>Spearman / Kendall 相關；Mann-Whitney、Kruskal-Wallis</td></tr>
+      <tr><td>二分/名目 Nominal</td><td>二分/名目（獨立）</td><td>卡方獨立性檢定 Chi-square；小樣本用 Fisher 精確檢定</td></tr>
+      <tr><td>二分/名目 Nominal</td><td>配對</td><td>McNemar 檢定</td></tr>
+      <tr><td>比例 Proportion</td><td>2 組</td><td>z 檢定 z-test</td></tr>
+      <tr><td>存活時間 Time-to-event</td><td>2 組</td><td>Kaplan-Meier + Log-rank；多變項用 Cox 比例風險模式</td></tr>
+      <tr><td>連續（多變項）</td><td>多個自變項</td><td>多元線性迴歸 Multiple linear regression / ANOVA / ANCOVA</td></tr>
+      <tr><td>二分（多變項）</td><td>多個自變項</td><td>多元邏輯斯迴歸 Multiple logistic regression</td></tr>
+      <tr><td>存活（多變項）</td><td>多個自變項</td><td>Cox 比例風險模式 Cox proportional hazards</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- Chapter views injected by JS -->
+<section id="view-ch8" class="view"></section>
+<section id="view-ch9" class="view"></section>
+<section id="view-ch10" class="view"></section>
+<section id="view-ch11" class="view"></section>
+<section id="view-ch12" class="view"></section>
+<section id="view-ch13" class="view"></section>
+
+</main>
+
+<button id="pdfAll" class="no-print" onclick="printAll()">📄 匯出全部講義為 PDF</button>
+
+<footer>
+  內容整理自《Jekel's Epidemiology, Biostatistics, Preventive Medicine and Public Health》Section 2 Biostatistics（第 8–13 章）。<br>
+  頁碼為課本內文頁碼，供對照原文之用。本工具為學習輔助，臨床/研究決策請以原著與統計專業意見為準。
+</footer>
+
+<script>
+/* ============ TAB SWITCHING ============ */
+const tabs=document.getElementById('tabs');
+tabs.addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return;
+  document.querySelectorAll('#tabs button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+b.dataset.t).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+/* ============ SELECTOR LOGIC ============ */
+const state={nIV:null,dv:null,iv:null,paired:null,param:null};
+document.querySelectorAll('.opts').forEach(o=>{
+  o.addEventListener('click',e=>{
+    const b=e.target.closest('button'); if(!b)return;
+    o.querySelectorAll('button').forEach(x=>x.classList.remove('sel'));
+    b.classList.add('sel');
+    state[o.dataset.q]=b.dataset.v;
+    updateVisibility(); recommend();
+  });
+});
+function show(id,on){document.getElementById(id).style.display=on?'':'none';}
+function updateVisibility(){
+  // multivariable: hide bivariate-specific Q3/Q4/Q5 detail (still ask DV)
+  const multi = state.nIV==='many';
+  show('q3', !multi && state.dv && state.dv!=='tte');
+  // Q4 (paired vs independent) for continuous OR categorical outcome with 2 groups
+  show('q4', !multi && state.iv==='two' && (state.dv==='cont' || state.dv==='dich'));
+  // Q5 only when a nonparametric choice is meaningful (continuous or ordinal comparisons)
+  show('q5', !multi && (state.dv==='cont') && (state.iv==='two'||state.iv==='multi'));
+}
+function setRec(title,rec,alt,why){
+  const el=document.getElementById('rec');
+  el.className='result';
+  el.innerHTML=`<h3>✅ ${title}</h3><div class="rec">${rec}</div>${alt?`<div class="alt">${alt}</div>`:''}<div class="why">${why}</div>`;
+}
+function recommend(){
+  const s=state;
+  if(!s.nIV||!s.dv){return;}
+  // ---- Multivariable ----
+  if(s.nIV==='many'){
+    if(s.dv==='cont') return setRec('多變項分析（連續結果）',
+      '多元線性迴歸 Multiple Linear Regression',
+      '若自變項全為類別 → ANOVA；連續與類別混合 → 共變數分析 ANCOVA。',
+      '有 2 個以上自變項且結果為連續時，用一般線性模式 (general linear model) 家族。可同時校正干擾因子 (confounders)，找出各自變項的獨立影響。原則：每個自變項至少要有 10 筆觀測值。 <span class="pg">p.174–176</span>');
+    if(s.dv==='dich') return setRec('多變項分析（二分結果）',
+      '多元邏輯斯迴歸 Multiple Logistic Regression',
+      '輸出勝算比 (odds ratio)，說明每增加一單位預測變項時「發生的勝算」變化。',
+      '結果是「是/否」型（如：發病 vs 未發病、恢復 vs 未恢復）且要校正多個因子時使用。臨床預測模型（如心肌梗塞風險評分）常用此法。 <span class="pg">p.179–180</span>');
+    if(s.dv==='tte') return setRec('多變項分析（存活/時間到事件）',
+      'Cox 比例風險模式 Cox Proportional Hazards Model',
+      '可處理追蹤中失聯 (loss to follow-up) 與設限 (censoring) 的資料。',
+      '結果是「時間相關的二分事件」（如：存活/死亡且在意發生時間）時使用；輸出風險比 (hazard ratio)。 <span class="pg">p.166, 180</span>');
+    if(s.dv==='ord') return setRec('多變項分析（順序結果）',
+      '順序邏輯斯迴歸 Ordinal Logistic Regression（延伸方法）',
+      '或視情況將結果重新編碼後採用一般線性模式家族。',
+      '順序型結果較少見於基礎課本；核心概念與其他多變項法相同——同時納入多個自變項並校正彼此影響。 <span class="pg">p.174 Table 11.1</span>');
+  }
+  // ---- Bivariate ----
+  if(s.dv==='tte') return setRec('存活分析（雙變項）',
+    'Kaplan-Meier 存活曲線 + Log-rank 檢定',
+    '亦可用生命表分析 Life Table Analysis 或人時法 Person-time methods。',
+    '當結果是「多久後發生事件」（存活、復發），並要比較兩組存活是否不同時使用。若需同時校正多個因子，改用 Cox 模式。 <span class="pg">p.164–167</span>');
+
+  if(s.dv==='dich'){
+    if(!s.iv) return;
+    if(s.iv==='two'){
+      if(!s.paired) return; // 等待「配對 vs 獨立」作答
+      if(s.paired==='paired') return setRec('類別資料（配對 2×2）',
+        'McNemar 檢定 McNemar Test',
+        '若配對且格內數字很小，可用精確版 McNemar / 二項檢定。',
+        '2×2 表且為配對／前後測資料（同一批人前後比較，或一對一配對受試者）時使用。它專門比較「前後改變方向不一致」的那兩格。 <span class="pg">p.159</span>');
+      return setRec('類別資料（獨立 2 組）',
+        '卡方獨立性檢定 Chi-square Test of Independence',
+        '若任一格期望次數過小（<5）→ 改用 Fisher 精確檢定 Fisher Exact Test；比較兩比例亦可用 z 檢定。',
+        '兩個獨立組別的類別結果（如治療組 vs 對照組的發病比例）。透過比較「觀察次數」與「期望次數」判斷關聯是否真實。 <span class="pg">p.156–160</span>');
+    }
+    // 自變項為 ≥3 組類別，或連續
+    return setRec('類別資料（多組／一般）',
+      '卡方獨立性檢定 Chi-square Test of Independence（R×C 列聯表）',
+      '小樣本用 Fisher 精確檢定；配對資料用 McNemar。',
+      '結果與自變項皆為類別時，用列聯表 (contingency table) 與卡方檢定判斷是否關聯。 <span class="pg">p.156–160</span>');
+  }
+
+  if(s.dv==='ord'){
+    if(s.iv==='cont') return setRec('順序資料（相關）',
+      'Spearman 或 Kendall 等級相關係數',null,
+      '兩變項中有順序型資料、或不符常態時，用等級 (rank) 為基礎的無母數相關。 <span class="pg">p.155</span>');
+    if(s.iv==='multi') return setRec('順序資料（≥3 組）',
+      'Kruskal-Wallis 檢定',null,
+      '比較 3 組以上、結果為順序或非常態連續資料的無母數方法（等同無母數版 ANOVA）。 <span class="pg">p.155</span>');
+    return setRec('順序資料（2 組）',
+      s.paired==='paired'?'Wilcoxon 配對符號等級檢定 Wilcoxon Matched-Pairs Signed-Ranks':'Mann-Whitney U 檢定',
+      null,
+      '順序型/非常態資料比較兩組時的無母數方法。配對用 Wilcoxon signed-ranks；獨立用 Mann-Whitney U。 <span class="pg">p.154</span>');
+  }
+
+  if(s.dv==='cont'){
+    if(!s.iv) return;
+    if(s.iv==='cont') return setRec('連續 vs 連續',
+      'Pearson 相關係數 + 簡單線性迴歸 Linear Regression',
+      '相關係數 r 看關聯強度與方向；迴歸看 x 每變動一單位、y 平均變動多少（斜率）。',
+      '兩個連續變項的關係（如身高與體重）。先畫聯合分布圖 (joint distribution graph) 檢查是否為直線關係，再算 r 與 R²。 <span class="pg">p.151–153</span>');
+    // 2 or multi groups
+    const nonpara = s.param==='nonpara';
+    if(s.iv==='multi') return setRec('連續結果 · ≥3 組比較',
+      nonpara?'Kruskal-Wallis 檢定（無母數）':'單因子變異數分析 One-way ANOVA',
+      nonpara?'資料若近常態可改用 ANOVA。':'資料偏斜/樣本小 → 改用無母數 Kruskal-Wallis。',
+      '比較 3 組以上的平均值（如 A藥/B藥/安慰劑的血壓）。ANOVA 用 F 比值比較「組間變異」與「組內變異」。 <span class="pg">p.142, 176</span>');
+    // two groups
+    if(s.paired==='paired') return setRec('連續結果 · 2 組配對/前後',
+      nonpara?'Wilcoxon 配對符號等級檢定（無母數）':'配對 t 檢定 Paired t-test',
+      nonpara?'資料近常態可改用配對 t 檢定。':'資料偏斜/樣本小 → 改用 Wilcoxon signed-ranks。',
+      '同一批人前後測、或配對比較連續結果（如治療前後血壓）。配對設計移除個體差異，檢定力較高。 <span class="pg">p.140, 154</span>');
+    return setRec('連續結果 · 2 組獨立',
+      nonpara?'Mann-Whitney U 檢定（無母數）':'兩樣本 t 檢定 Two-sample (independent) t-test',
+      nonpara?'資料近常態可改用兩樣本 t 檢定。':'資料偏斜/樣本小 → 改用 Mann-Whitney U。',
+      '比較兩個獨立組別的平均值（如治療組 vs 對照組的血壓）。t 檢定＝觀察差異 ÷ 差異的標準誤。 <span class="pg">p.136–140</span>');
+  }
+}
+function resetWizard(){
+  for(const k in state)state[k]=null;
+  document.querySelectorAll('.opts button').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('rec').className='result empty';
+  document.getElementById('rec').innerHTML='👆 請從上方開始作答，我會即時建議適當的統計方法。';
+  updateVisibility();
+}
+updateVisibility();
+
+/* ============ CHAPTER CONTENT DATA ============ */
+const CH = {
+ch8:{
+ num:8, title:'描述資料的變異與分布', en:'Describing Variation and Distribution of Data', pages:'p.114–127',
+ goals:[
+  '理解「變異 (variation)」是所有醫學資料的本質，統計就是處理變異的工具。',
+  '能分辨四種變項型態：名目、二分、順序、連續，並知道會影響選什麼統計方法。',
+  '看懂次數分布 (frequency distribution) 與其常用圖表（直方圖等）。',
+  '掌握描述資料的四個核心參數：平均數、中位數、眾數、標準差。'
+ ],
+ terms:[
+  ['變項','Variable','一個「會變動」的特徵測量值，如血壓、體重。統計就是在描述與解釋這些變動。'],
+  ['變異','Variation','同一特徵在不同人/不同情境下會不一樣。來源包含生物差異、測量條件、測量誤差、隨機變異。'],
+  ['系統性誤差 / 偏差','Systematic error / Bias','讓資料「往同一方向」偏掉，如量體重時都穿鞋 → 一律偏重。'],
+  ['名目變項','Nominal variable','純類別、無順序，如血型、種族。'],
+  ['二分變項','Dichotomous (binary) variable','只有兩類，如存活/死亡、有病/無病。'],
+  ['順序變項','Ordinal (ranked) variable','有順序但間距不固定，如「很滿意/普通/不滿意」、癌症分期。'],
+  ['連續變項','Continuous (dimensional) variable','可取任意數值，如血糖、身高。資訊量最高。'],
+  ['次數分布','Frequency distribution','把每個數值出現幾次列出來，看資料如何散布。'],
+  ['平均數','Mean','所有數值相加除以個數；受極端值影響大。'],
+  ['中位數','Median','排序後最中間的值；對極端值 (outlier) 較穩健。'],
+  ['眾數','Mode','出現次數最多的值。'],
+  ['標準差','Standard deviation (SD)','衡量資料「離平均數多遠」的平均散布程度；越大代表越分散。'],
+  ['常態分布','Normal (Gaussian) distribution','對稱的鐘形曲線，平均數=中位數=眾數。'],
+  ['偏態','Skewness','分布不對稱；右偏時平均數被拉高、大於中位數。']
+ ],
+ when:'寫論文的「描述性統計」章節、決定資料型態以挑選後續統計方法、以及在畫圖呈現資料分布時，都會用到本章。<b>看到任何資料，第一步就是問：它是哪一種變項？分布長什麼樣子？</b>',
+ examples:[
+  ['血壓的變異','血壓會因焦慮、運動、睡眠而不同——這不是「測量錯誤」，而是測量「條件」造成的真實變異。標準化測量條件可避免偏差。 <span class="pg">p.114</span>'],
+  ['測量技術差異','用動脈內導管量到的血壓，會和用手臂壓脈帶量到的不同（測量部位、手臂厚度、動脈硬化程度都有影響）。 <span class="pg">p.114</span>'],
+  ['癌症分期是順序變項','子宮頸癌可分為原位、局部、侵犯、轉移——有順序但非等距，屬順序變項。 <span class="pg">p.114–116</span>']
+ ]
+},
+ch9:{
+ num:9, title:'假設檢定', en:'Testing Hypotheses', pages:'p.130–143',
+ goals:[
+  '理解統計推論 (statistical inference)：用樣本去推論母體，永遠帶有不確定性。',
+  '寫得出虛無假設與對立假設，並跑完假設檢定的五個步驟。',
+  '分清楚 α（型一/偽陽性錯誤）與 β（型二/偽陰性錯誤），以及 p 值的真正意義。',
+  '知道 t 檢定、z 檢定何時使用，並理解標準誤 (SE) 與信賴區間 (CI)。'
+ ],
+ terms:[
+  ['虛無假設','Null hypothesis (H₀)','「沒有差異/沒有關聯」的預設立場。統計檢定是在嘗試推翻它。'],
+  ['對立假設','Alternative hypothesis (Hₐ)','「有差異/有關聯」，是研究者想證明的主張。'],
+  ['型一錯誤 (α)','Type I error / false-positive','其實沒差異，卻誤判「有差異」。慣例上 α 設 0.05（願承擔 5% 偽陽性風險）。'],
+  ['型二錯誤 (β)','Type II error / false-negative','其實有差異，卻沒偵測到。慣例 β 設 0.2。'],
+  ['檢定力','Power (1 − β)','真的有差異時「能被偵測出來」的機率，即敏感度。慣例 0.8。'],
+  ['p 值','p value','「若虛無假設為真，得到現有（或更極端）結果純屬機運」的機率。p ≤ α 才拒絕虛無假設。'],
+  ['α 水準','Alpha level','事前設定、可容忍的最大偽陽性風險（顯著水準）。必須在做檢定前決定。'],
+  ['標準差 vs 標準誤','SD vs Standard error (SE)','SD 描述「個體」的散布；SE 描述「樣本平均數」的散布 (SE = SD/√N)，樣本越大 SE 越小。'],
+  ['信賴區間','Confidence interval (CI)','估計母體真值可能落在的範圍，如 95% CI。若差異的 CI 不跨越 0（或比值不跨 1）通常代表顯著。'],
+  ['臨界比值','Critical ratio','檢定統計量＝觀察差異 ÷ 差異的標準誤，t、z 都屬此類。'],
+  ['自由度','Degrees of freedom (df)','可自由變動的資料點數目，影響查表的臨界值。'],
+  ['兩樣本 t 檢定','Two-sample t-test','比較兩獨立組別的平均數是否不同。'],
+  ['配對 t 檢定','Paired t-test','同一批人前後測或配對比較，先算個別差值再檢定。'],
+  ['z 檢定','z-test','比較「比例」差異（如敏感度、存活率），統計量服從標準常態分布。'],
+  ['臨床顯著 vs 統計顯著','Clinical vs statistical significance','p 小只代表「不太可能是巧合」，不代表差異「大到有臨床意義」。兩者需分開判斷。']
+ ],
+ when:'當你要「比較兩組或多組是否真的有差異」、或想判斷觀察到的差異「是不是只是運氣」時。這是所有分析性研究 (analytic study) 的核心。<b>報告結果時，記得同時檢視統計顯著與臨床意義。</b>',
+ examples:[
+  ['26 位年輕人的血壓（Table 9.1）','課本用 26 名年輕成人的收縮壓/舒張壓資料，示範如何計算平均、標準差與 t 檢定，並在第10章延伸做相關分析。 <span class="pg">p.133–140</span>'],
+  ['燕麥麩降膽固醇（複習題）','若試驗結果 p 值大於事前設定的 α，不能事後把 α 改大來「變顯著」——α 必須事前決定，事後更改不合倫理。負向結果可能是真的沒差，也可能是樣本太小造成的型二錯誤。 <span class="pg">p.186</span>'],
+  ['存活率比較用 z 檢定','比較「治療組 vs 未治療組的存活比例」時，因為結果是比例，使用 z 檢定。 <span class="pg">p.141</span>']
+ ]
+},
+ch10:{
+ num:10, title:'分析兩個變項間的關係', en:'Analyzing Relationships Between Two Variables', pages:'p.149–168',
+ goals:[
+  '學會依「變項型態＋研究設計」挑選正確的雙變項 (bivariate) 統計方法（Table 10.1）。',
+  '理解連續資料的參數分析：Pearson 相關與線性迴歸的差別。',
+  '認識順序資料的無母數方法與類別資料的卡方家族檢定。',
+  '看懂 2×2 表、卡方、McNemar、Fisher 精確檢定與存活分析的使用時機。'
+ ],
+ terms:[
+  ['雙變項分析','Bivariate analysis','分析「一個自變項 vs 一個依變項」的關係。'],
+  ['參數 vs 無母數','Parametric vs Nonparametric','參數法假設資料呈特定分布（如常態）；無母數法不需分布假設，適合順序資料或小樣本。'],
+  ['聯合分布圖','Joint distribution graph','把兩個連續變項畫成散布點，看是否成直線關係，是分析第一步。'],
+  ['Pearson 相關係數','Pearson correlation coefficient (r)','衡量兩連續變項「直線關係」強度，範圍 −1 到 +1；0 為無相關。相關不等於因果。'],
+  ['線性迴歸','Linear regression','用一條直線描述關係；斜率代表 x 每增一單位、y 平均變化量。'],
+  ['決定係數','R²','x 能解釋 y 變異的比例。'],
+  ['Mann-Whitney U','Mann-Whitney U-test','無母數，比較兩獨立組（等同無母數版兩樣本 t 檢定）。'],
+  ['Wilcoxon 符號等級','Wilcoxon signed-ranks','無母數，配對/前後測比較。'],
+  ['Kruskal-Wallis','Kruskal-Wallis test','無母數，比較 3 組以上。'],
+  ['Spearman/Kendall','Spearman / Kendall correlation','以等級為基礎的相關係數，用於順序或非常態資料。'],
+  ['卡方獨立性檢定','Chi-square test of independence','比較類別資料的觀察次數與期望次數，判斷兩類別變項是否關聯。'],
+  ['McNemar 檢定','McNemar test','2×2 表的「配對」版卡方，用於前後測或配對資料。'],
+  ['Fisher 精確檢定','Fisher exact test','當 2×2 表格內期望次數太小 (<5) 時，取代卡方。'],
+  ['關聯強度','Strength of association','風險比、勝算比、R²、phi、Cramer V 等；統計顯著≠關聯強，兩者都要看。'],
+  ['存活分析','Survival analysis','分析「維持某結果多久」，如 Kaplan-Meier 曲線、生命表、Log-rank 檢定。']
+ ],
+ when:'這是研究資料分析最常用的一章。<b>當你只有一個自變項與一個依變項，想知道兩者是否有關、關係多強、是否顯著時</b>，就到本章依 Table 10.1 選方法。先做雙變項分析，若自變項超過一個才進到第11章。',
+ examples:[
+  ['收縮壓與舒張壓的相關','課本用 26 位年輕人的血壓資料畫聯合分布圖（Fig. 10.1），顯示收縮壓與舒張壓呈強正相關。 <span class="pg">p.151</span>'],
+  ['相關不等於因果','有車的人也常有電視，但擁有其中一項並不「造成」擁有另一項——相關無法證明因果。 <span class="pg">p.152, 168 複習題</span>'],
+  ['關聯強度像飛機的兩隻翅膀','課本比喻：同時看「統計顯著」與「關聯強度」就像飛機需要左右兩翼，缺一不可。一個常見危險是把「顯著但強度很弱」的關聯自動當成重要。 <span class="pg">p.163</span>']
+ ]
+},
+ch11:{
+ num:11, title:'分析多個變項間的關係', en:'Analyzing Relationships Between Multiple Variables', pages:'約 p.171–181',
+ goals:[
+  '理解多變項分析 (multivariable) 的目的：同時處理多個自變項並校正干擾因子。',
+  '認識一般線性模式 (general linear model) 是眾多方法的共同基礎。',
+  '依變項型態選對方法：ANOVA、ANCOVA、多元線性迴歸、邏輯斯迴歸、Cox 模式（Table 11.1）。',
+  '知道多變項分析的限制與經驗法則（每個自變項至少 10 筆觀測）。'
+ ],
+ terms:[
+  ['多變項分析','Multivariable analysis','「多個自變項 → 一個依變項」。注意：multivariate（多變量）技術上指多個依變項，常被混用。'],
+  ['交互作用','Interaction','一個自變項的影響會隨另一個自變項而改變。例：高血壓的性別差異在 50 歲前後相反。'],
+  ['干擾因子','Confounder','同時影響自變項與依變項、扭曲關係的第三變項；多變項分析可加以校正。'],
+  ['一般線性模式','General linear model','y = a + b₁x₁ + b₂x₂ + … 的線性組合，是多數多變項方法的共同架構。'],
+  ['最小平方法','Least-squares solution','讓誤差平方和最小，求出最佳係數估計。'],
+  ['變異數分析','ANOVA','連續依變項＋類別自變項；用 F 比值比較組間與組內變異。'],
+  ['共變數分析','ANCOVA','連續依變項＋類別和連續自變項混合，可校正共變項。'],
+  ['多元線性迴歸','Multiple linear regression','連續依變項＋多個（含連續）自變項。'],
+  ['多元邏輯斯迴歸','Multiple logistic regression','二分依變項（是/否），輸出勝算比，臨床預測模型常用。'],
+  ['Cox 比例風險模式','Cox proportional hazards model','時間相關的二分結果（存活/死亡），可處理設限資料，輸出風險比。'],
+  ['傾向分數配對','Propensity matching','觀察性研究中，用多變項算出的傾向分數把兩組配對，模擬隨機化以減少偏差。'],
+  ['共線性','Multicollinearity','自變項彼此高度相關，會使估計不穩定。'],
+  ['過度配適','Overfitting','納入太多變項使模型「記住」資料雜訊、外推能力差。']
+ ],
+ when:'<b>當你有兩個以上的自變項，想同時評估它們對單一結果的獨立與共同影響、或需要校正多個干擾因子時。</b>三大用途：(1) 臨床試驗中校正其他變項；(2) 觀察性研究中估計各因子對疾病風險的相對影響；(3) 建立診斷/預後評分系統。使用需經驗，且切勿忽略良好研究設計。',
+ examples:[
+  ['年齡、身高預測體重','在人生前 20 年，年齡與身高都能預測體重，但兩者本身相關。年齡是根本解釋變項，身高是中介變項——說明多個自變項間會共享解釋力。 <span class="pg">p.172</span>'],
+  ['高血壓的年齡×性別交互作用','康乃狄克州血壓調查：非裔美國人中，50 歲以下男性較易高血壓；50 歲以上則反轉為女性較易——年齡與性別存在交互作用。 <span class="pg">p.175</span>'],
+  ['Framingham 心臟研究預測模型','用多變項分析，依吸菸、膽固醇、高血壓、葡萄糖耐受不良、左心室肥厚等因子組合，建立 8 年心血管疾病風險預測方程式。 <span class="pg">p.176</span>']
+ ]
+},
+ch12:{
+ num:12, title:'用統計來設計研究', en:'Using Statistics to Design Studies', pages:'p.182–191',
+ goals:[
+  '理解樣本數 (sample size) 計算的四大要素：α、β（檢定力）、效果量、變異。',
+  '知道為什麼樣本太小會導致偽陰性 (β error) 而測不出真實差異。',
+  '認識各種隨機分派 (randomization) 方法及其目的。',
+  '了解多重假設檢定 (multiple hypotheses) 的問題與 Bonferroni 等校正。'
+ ],
+ terms:[
+  ['樣本數','Sample size (N)','研究需要多少受試者；事前計算以確保有足夠檢定力。'],
+  ['β 錯誤','Beta (false-negative) error','有差異卻沒測出來的機率；樣本太小是常見原因。'],
+  ['檢定力','Power (1 − β)','偵測到真實差異的能力，慣例至少 0.80。'],
+  ['效果量','Effect size','你想偵測的最小有意義差異；越小的差異需越大樣本。'],
+  ['隨機分派','Randomization','用隨機方式把受試者分到各組，使組間在已知與未知因子上盡量相似。'],
+  ['簡單/區塊隨機','Simple / Block randomization','簡單＝完全隨機；區塊＝以小區塊維持各組人數平衡。'],
+  ['系統性分配','Systematic allocation','交替分派（一個實驗、一個對照）；若受試者進入有週期性可能產生偏差。'],
+  ['分層分配','Stratified allocation','又稱預後分層，先依基準變項（疾病嚴重度、年齡）分層再各層隨機，確保組間同質。'],
+  ['隨機對照試驗','Randomized controlled trial (RCT)','設計、分析、詮釋得當時，判斷介入是否有效的最佳方法。'],
+  ['多重假設問題','Multiple hypotheses / multiple comparisons','檢定越多，至少一次偽陽性的機率越高。'],
+  ['Bonferroni 校正','Bonferroni correction','把 α 除以檢定次數，使整體偽陽性風險維持在可控範圍。']
+ ],
+ when:'<b>在「設計研究、寫計畫書」階段最重要。</b>收案前務必先算樣本數（避免做白工卻測不出差異），決定隨機分派方式（避免選擇偏差），並規劃如何處理多重比較。“Absence of evidence is not evidence of absence.”（沒找到證據 ≠ 證明沒有）。',
+ examples:[
+  ['樣本太小 → 偽陰性','若燕麥麩試驗得到負向結果，可能是真的沒效，也可能是樣本數不足、劑量不夠導致的型二錯誤——這正是事前算樣本數的理由。 <span class="pg">p.183, 186</span>'],
+  ['系統性分配的隱藏偏差','若每天只收前兩位病人、且第一位固定進實驗組，實驗組可能都是「早起、就業、積極」的人 → 產生系統性偏差。解法：經常反轉分派順序。 <span class="pg">p.189</span>'],
+  ['隨機化不保證兩組完全相同','比較 20 個特徵時，偶爾有 1 個達統計顯著是機運造成，不代表隨機化失敗；有疑慮的變項可在分析時校正。 <span class="pg">p.190</span>']
+ ]
+},
+ch13:{
+ num:13, title:'用統計回答臨床問題', en:'Meta-Analysis, Bayes Theorem & Decision Analysis', pages:'p.194–203',
+ goals:[
+  '理解統合分析 (meta-analysis) 如何整合多篇研究，並看懂森林圖與漏斗圖。',
+  '會用貝氏定理 (Bayes theorem) 由盛行率、敏感度、特異度算出陽性預測值。',
+  '理解「檢驗前機率 → 檢驗後機率」的更新，以及檢驗順序的影響。',
+  '認識決策分析 (decision analysis) 與決策樹的建立步驟。'
+ ],
+ terms:[
+  ['實證醫學','Evidence-based medicine (EBM)','以最佳臨床研究證據做診斷與治療決策；本章工具皆為 EBM 利器。'],
+  ['系統性回顧','Systematic review','有系統地蒐集、評讀所有相關研究（可含或不含統合分析）。'],
+  ['統合分析','Meta-analysis','把多篇研究的量化結果合併統計分析（“analysis among many”）。'],
+  ['森林圖','Forest plot','每點是一篇研究的效果量與 95% CI；菱形為合併估計；跨越無效線代表不顯著。'],
+  ['漏斗圖','Funnel plot','檢查發表偏差；若一側明顯空缺，可能存在 publication bias。'],
+  ['固定/隨機效應模式','Fixed / Random effects model','合併多篇研究時對異質性的兩種假設。'],
+  ['貝氏定理','Bayes theorem','用新資訊更新疾病機率：分子＝盛行率×敏感度（真陽性）。'],
+  ['敏感度','Sensitivity','有病者中被驗出陽性的比例。'],
+  ['特異度','Specificity','無病者中被驗出陰性的比例。'],
+  ['陽性預測值','Positive predictive value (PPV)','檢驗陽性者中「真的有病」的比例；受盛行率影響很大。'],
+  ['檢驗前/後機率','Prior / Posterior probability','檢驗前的疾病機率（＝盛行率）→ 檢驗後更新的機率。'],
+  ['概似比','Likelihood ratio','描述檢驗表現、且「不受盛行率影響」，適合評估檢驗整體效能。'],
+  ['決策分析','Decision analysis','用決策樹有系統地比較不同臨床選擇的期望效益。'],
+  ['決策節點/機會節點','Decision node / Chance node','方形＝醫師要做決定處；圓形＝需等待結果的機率分岔。'],
+  ['效用值','Utility value','某結果對病人的價值（含病人個人偏好）。'],
+  ['敏感度分析','Sensitivity analysis','改變假設的機率/效用值，看結論是否穩健。']
+ ],
+ when:'<b>當你要「整合現有文獻做結論」（統合分析）、「判讀一個檢驗結果代表什麼」（貝氏／預測值）、或「在不確定下做臨床選擇」（決策分析）時。</b>“It is easy to lie with statistics. It is hard to tell the truth without it.”',
+ examples:[
+  ['結核菌素篩檢的 PPV（Box 13.1）','以 10,000 人的假設篩檢計畫，用貝氏定理或 2×2 表算出陽性預測值 = 96/690 ≈ 13.9%——盛行率低時，即使檢驗不錯，PPV 仍可能很低。 <span class="pg">p.197</span>'],
+  ['序列檢驗提高把握（Box 13.2→13.3）','副甲狀腺疾病案例：第一次檢驗把機率由 2% 提升到 27%；因為檢驗前機率變高、且第二個檢驗特異度高 (98%)，第二次再提升到 94%——高特異度檢驗適合「確診 (rule in)」。 <span class="pg">p.198'],
+  ['無症狀膽結石的決策樹（Fig. 13.3）','方形決策節點：現在開刀 vs 觀察。若立即手術，手術死亡機率 0.4%（250 分之 1）；由於併發症多在多年後才發生，許多病人會選擇先不開刀。 <span class="pg">p.200–201</span>']
+ ]
+}
+};
+
+/* ============ QUIZZES (10 per chapter) ============ */
+const QUIZ = {
+ch8:[
+ ['「變異 (variation)」在醫學資料中最正確的描述是？',['只來自測量錯誤','是資料的本質，來源包含生物差異、測量條件、誤差與隨機變異','只發生在有病的人身上','可以完全消除'],1,'課本開宗明義：變異來自生物差異、測量條件與技術、測量誤差及隨機變異，是資料的本質。'],
+ ['量體重時受試者都穿著鞋子，導致體重一律偏高，這屬於？',['隨機變異','系統性誤差 (systematic error / bias)','眾數','常態分布'],1,'往同一方向偏掉＝系統性誤差（偏差）。'],
+ ['下列何者是「順序變項 (ordinal variable)」？',['血型','癌症分期（原位/局部/侵犯/轉移）','體重','存活或死亡'],1,'癌症分期有順序但間距不固定，屬順序變項。'],
+ ['「存活 vs 死亡」屬於哪一種變項？',['連續變項','二分變項 (dichotomous)','順序變項','比率變項'],1,'只有兩個類別＝二分（binary）變項。'],
+ ['資訊量最高、可取任意數值的變項是？',['名目變項','二分變項','連續變項 (continuous)','順序變項'],2,'連續變項可取任意數值（如血糖），資訊量最高。'],
+ ['對「極端值 (outlier)」最不敏感、最穩健的集中趨勢量數是？',['平均數 mean','中位數 median','標準差','全距'],1,'中位數是排序後最中間的值，受極端值影響小。'],
+ ['標準差 (standard deviation) 描述的是？',['資料的中間位置','資料離平均數的平均散布程度','出現最多次的值','兩變項的關聯'],1,'SD 衡量資料相對於平均數的散布程度。'],
+ ['在完美的常態分布中，下列何者成立？',['平均數 > 中位數 > 眾數','平均數 = 中位數 = 眾數','眾數 > 平均數','無法比較'],1,'常態（高斯）分布對稱，三者相等。'],
+ ['資料呈「右偏 (right skew)」時，通常？',['平均數被極大值拉高，大於中位數','平均數小於中位數','沒有眾數','一定是常態分布'],0,'右偏時少數大值把平均數往上拉，使平均數 > 中位數。'],
+ ['分析一份新資料時，最先該問的問題是？',['p 值多少','要不要做迴歸','這是哪一種變項、分布長什麼樣','要不要隨機化'],2,'第一步永遠是辨識變項型態與分布，才能決定後續方法。']
+],
+ch9:[
+ ['虛無假設 (null hypothesis) 的內容通常是？',['有顯著差異','沒有差異／沒有關聯','樣本太小','效果量很大'],1,'H₀＝「沒有差異」，檢定是在嘗試推翻它。'],
+ ['型一錯誤 (Type I / α error) 是指？',['有差異卻沒測到','沒有差異卻誤判為有差異（偽陽性）','樣本選擇偏差','測量誤差'],1,'型一＝偽陽性，慣例 α 設 0.05。'],
+ ['型二錯誤 (Type II / β error) 是指？',['沒有差異卻誤判有差異','有差異卻沒偵測到（偽陰性）','隨機分派失敗','p 值太小'],1,'型二＝偽陰性，慣例 β 設 0.2。'],
+ ['檢定力 (power) 等於？',['α','1 − β','p 值','標準誤'],1,'Power = 1 − β，是真有差異時能被偵測到的機率（即敏感度）。'],
+ ['p 值最正確的解讀是？',['虛無假設為真的機率','若虛無假設為真，得到現有或更極端結果純屬機運的機率','效果量的大小','樣本數'],1,'p 是在 H₀ 為真下、觀察到此結果（或更極端）的機率。'],
+ ['α 水準應該在何時決定？',['看到資料後','做完檢定後','進行檢定之前（事前設定）','投稿時'],2,'α 必須事前設定；事後更改（如把 α 調大讓結果變顯著）不合倫理。'],
+ ['標準誤 (SE) 與標準差 (SD) 的關係為 SE = SD/√N，代表？',['樣本越大，SE 越大','樣本越大，SE 越小、平均數估計越精確','SE 與 SD 相同','SE 與樣本無關'],1,'N 越大，SE 越小，樣本平均數的估計越精確。'],
+ ['比較兩個「獨立組別」連續結果的平均數，用？',['配對 t 檢定','兩樣本 t 檢定','卡方檢定','z 檢定比例'],1,'兩獨立組別平均數 → 兩樣本 (independent) t-test。'],
+ ['同一批病人「治療前 vs 治療後」血壓比較，應用？',['兩樣本 t 檢定','配對 t 檢定 (paired t-test)','卡方檢定','ANOVA'],1,'前後測是配對資料，用配對 t 檢定。'],
+ ['一個結果「統計顯著 (p<0.05)」代表？',['差異一定有臨床意義','差異不太可能只是巧合，但不代表臨床上重要','虛無假設一定為真','樣本一定夠大'],1,'統計顯著≠臨床顯著；差異可能真實但太小而無臨床意義。']
+],
+ch10:[
+ ['選擇雙變項統計方法時，最關鍵的兩個考量是？',['作者偏好與期刊要求','變項型態與研究設計','樣本編號與收案日期','p 值與 α'],1,'課本 Table 10.1：依變項型態＋研究設計決定方法。'],
+ ['分析兩個連續變項（如身高與體重）的關係，適合？',['卡方檢定','Pearson 相關 + 線性迴歸','McNemar 檢定','Mann-Whitney U'],1,'兩連續變項 → Pearson 相關與線性迴歸。'],
+ ['Pearson 相關係數 r 的範圍是？',['0 到 1','−1 到 +1','−∞ 到 +∞','0 到 100'],1,'r 介於 −1（完全負相關）到 +1（完全正相關），0 為無相關。'],
+ ['「有車的人也常有電視」這個例子說明？',['相關就是因果','相關不等於因果','兩者為二分變項','應該用卡方'],1,'相關無法證明因果——經典例子。'],
+ ['資料為順序型或不符常態、要比較兩獨立組，適合？',['兩樣本 t 檢定','Mann-Whitney U 檢定','Pearson 相關','線性迴歸'],1,'無母數、兩獨立組 → Mann-Whitney U。'],
+ ['比較 3 組以上、非常態的連續資料，無母數方法是？',['ANOVA','Kruskal-Wallis 檢定','卡方','配對 t 檢定'],1,'無母數版的多組比較＝Kruskal-Wallis。'],
+ ['兩個類別（名目）變項是否關聯，最常用？',['t 檢定','卡方獨立性檢定','Pearson 相關','線性迴歸'],1,'類別 vs 類別 → 卡方獨立性檢定（比較觀察 vs 期望次數）。'],
+ ['2×2 表中有格子的期望次數太小 (<5)，應改用？',['z 檢定','Fisher 精確檢定','ANOVA','Spearman'],1,'期望次數過小時，卡方不準，改用 Fisher exact test。'],
+ ['「治療前後」的 2×2 配對類別資料，用哪個檢定？',['一般卡方','McNemar 檢定','Kruskal-Wallis','Pearson'],1,'2×2 的配對版卡方＝McNemar test。'],
+ ['關於統計顯著與關聯強度，正確的是？',['只要看 p 值就夠','兩者都要看，如同飛機的左右兩翼','顯著就一定關聯強','關聯強就一定顯著'],1,'課本比喻：顯著性與關聯強度缺一不可。']
+],
+ch11:[
+ ['何時需要「多變項分析 (multivariable analysis)」？',['比較多組受試者','需要同時控制多個干擾因子','重複多次實驗','有多位研究者'],1,'課本複習題答案：需同時校正多個干擾因子時（多自變項→單一結果）。'],
+ ['multivariable 與 multivariate 的差別是？',['完全相同','multivariable＝多個自變項；multivariate＝多個依變項','都指多個依變項','都指多個樣本'],1,'技術上 multivariate 指多個依變項，常被誤用。'],
+ ['「一個自變項的影響會隨另一自變項而改變」稱為？',['干擾','交互作用 (interaction)','共線性','過度配適'],1,'interaction＝交互作用，如高血壓性別差異隨年齡反轉。'],
+ ['多數多變項方法（ANOVA、迴歸等）的共同數學基礎是？',['貝氏定理','一般線性模式 (general linear model)','卡方分布','存活曲線'],1,'ANOVA、ANCOVA、多元/邏輯斯迴歸都是 general linear model 的變形。'],
+ ['依變項為「連續」、自變項為多個（含連續），用？',['多元邏輯斯迴歸','多元線性迴歸','Cox 模式','卡方'],1,'連續結果＋多自變項 → 多元線性迴歸。'],
+ ['依變項為「是/否」型（如發病 vs 未發病），多變項用？',['多元線性迴歸','多元邏輯斯迴歸 (logistic regression)','ANCOVA','Pearson'],1,'二分結果 → 邏輯斯迴歸，輸出勝算比。'],
+ ['結果為「存活/死亡且在意發生時間」，最適合？',['多元線性迴歸','Cox 比例風險模式','卡方','t 檢定'],1,'時間相關二分結果 → Cox proportional hazards model。'],
+ ['依變項連續、自變項為類別，用哪種方法？',['ANOVA','邏輯斯迴歸','Cox 模式','Fisher'],0,'連續依變項＋類別自變項 → ANOVA（用 F 比值比較組間/組內變異）。'],
+ ['多變項分析的經驗法則之一是？',['每個自變項至少要有 10 筆觀測值','樣本越少越好','不需研究設計','一定優於雙變項'],0,'課本建議每個自變項至少 10 筆觀測，且仍須良好研究設計。'],
+ ['觀察性研究中，用多變項算出分數把兩組配對以模擬隨機化，稱為？',['分層分配','傾向分數配對 (propensity matching)','區塊隨機','Bonferroni 校正'],1,'propensity matching 用傾向分數配對，減少非隨機化的偏差。']
+],
+ch12:[
+ ['樣本數計算的主要目的之一是？',['減少受試者權益','確保有足夠檢定力偵測真實差異','讓 p 值變小','取代隨機化'],1,'事前算樣本數以確保足夠 power，避免偽陰性。'],
+ ['β (beta) 錯誤是指？',['偽陽性','偽陰性（有差異卻沒測到）','選擇偏差','測量誤差'],1,'β＝型二＝偽陰性錯誤。'],
+ ['檢定力 (power) 慣例上至少要達到？',['0.05','0.20','0.80','0.99'],2,'慣例 power ≥ 0.80（β = 0.2）。'],
+ ['其他條件相同時，想偵測「越小的差異」，需要的樣本數？',['越小','越大','不變','等於 0'],1,'效果量越小，需要越大的樣本才測得出來。'],
+ ['隨機分派 (randomization) 的主要目的是？',['增加樣本數','讓組間在已知與未知因子上盡量相似','提高盛行率','減少特異度'],1,'隨機化使各組可比，減少偏差。'],
+ ['「先依疾病嚴重度或年齡分層，再各層隨機」屬於？',['簡單隨機','系統性分配','分層（預後）分配 stratified allocation','Bonferroni'],2,'stratified / prognostic stratification 確保組間同質。'],
+ ['系統性分配（交替分派）可能產生偏差，若？',['樣本太大','受試者進入具有週期性','使用電腦','有對照組'],1,'若進入有週期性（如每天前兩位），可能造成系統性差異；解法是常反轉順序。'],
+ ['隨機化「不保證」兩組完全相同，因此比較 20 個特徵時偶有 1 個顯著，代表？',['隨機化失敗','屬機運，可在分析時校正該變項','必須重做研究','資料造假'],1,'偶發顯著是機運；有疑慮的變項可在分析中校正。'],
+ ['做越多次假設檢定，會發生什麼問題？',['檢定力下降','至少一次偽陽性的機率上升','樣本自動變大','α 自動變小'],1,'多重比較使整體型一錯誤機率上升。'],
+ ['把 α 除以檢定次數以控制整體偽陽性，稱為？',['Kaplan-Meier','Bonferroni 校正','傾向配對','Cox 模式'],1,'Bonferroni correction 是控制多重比較的常見方法。']
+],
+ch13:[
+ ['統合分析 (meta-analysis) 的前提是？',['只需一篇大型研究','必須先有系統性回顧找出可納入的研究','不需文獻搜尋','等於單一 RCT'],1,'meta-analysis 需以系統性回顧為基礎，找出資料來源研究。'],
+ ['森林圖 (forest plot) 中，某研究的 95% CI 跨越「無效線」代表？',['結果統計顯著','結果不支持統計顯著','資料造假','樣本太大'],1,'CI 跨越無效（unity）線 → 不顯著。'],
+ ['漏斗圖 (funnel plot) 主要用來檢查？',['敏感度','發表偏差 (publication bias)','樣本數','效用值'],1,'漏斗圖一側明顯空缺提示可能有發表偏差。'],
+ ['貝氏定理的分子（真陽性）等於？',['特異度 × 1','盛行率 × 敏感度','敏感度 × 特異度','1 − 特異度'],1,'分子＝p(D+)×p(T+|D+)＝盛行率×敏感度＝真陽性。'],
+ ['敏感度 (sensitivity) 的定義是？',['無病者中驗出陰性的比例','有病者中驗出陽性的比例','陽性者中真的有病的比例','盛行率'],1,'sensitivity＝有病者中被驗出陽性者的比例。'],
+ ['陽性預測值 (PPV) 會受什麼強烈影響？',['受試者年齡','疾病盛行率','檢驗費用','醫院大小'],1,'PPV 受盛行率影響很大；盛行率低時 PPV 可能很低。'],
+ ['結核菌素篩檢例中 PPV = 96/690 ≈ 13.9%，主要說明？',['檢驗很差','盛行率低時即使檢驗不錯，PPV 仍可能偏低','敏感度=100%','樣本太小'],1,'低盛行率下 PPV 偏低，是貝氏定理的重要教訓。'],
+ ['「檢驗前機率 (prior probability)」在個別病人相當於？',['特異度','盛行率／檢驗前的疾病機率','概似比','後驗機率'],1,'prior probability＝檢驗前的疾病機率，族群層次即盛行率。'],
+ ['高特異度 (如 98%) 的檢驗特別適合用來？',['排除疾病 (rule out)','確診疾病 (rule in)','篩檢大量人口','降低成本'],1,'高特異度減少偽陽性，適合「rule in（確診）」。'],
+ ['決策樹 (decision tree) 中，方形代表？',['機會節點','決策節點（醫師要做決定處）','效用值','無效線'],1,'方形＝decision node（決策節點）；圓形＝chance node（機會節點）。']
+]
+};
+
+/* ============ RENDER CHAPTERS ============ */
+function renderChapter(key){
+  const c=CH[key], quiz=QUIZ[key];
+  let termsHtml=c.terms.map(t=>`<div class="term"><div class="t-name">${t[0]} <span class="en">${t[1]}</span></div><div class="t-def">${t[2]}</div></div>`).join('');
+  let goalsHtml=c.goals.map(g=>`<li>${g}</li>`).join('');
+  let exHtml=c.examples.map(e=>`<div class="ex"><b>📌 ${e[0]}</b><br>${e[1]}</div>`).join('');
+
+  let quizHtml=quiz.map((q,i)=>{
+    const letters=['A','B','C','D','E'];
+    const choices=q[1].map((ch,j)=>`<label class="choice" data-correct="${j===q[2]}" onclick="answer(this,'${key}',${i})"><span class="k">${letters[j]}</span>${ch}</label>`).join('');
+    return `<div class="qitem" data-q="${i}">
+      <div class="qq"><span class="n">${i+1}</span>${q[0]}</div>
+      ${choices}
+      <div class="explain"><b>✔ 正解：${letters[q[2]]}。</b> ${q[3]}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('view-'+key).innerHTML=`
+   <div class="card handout">
+     <button class="print-btn no-print" onclick="printOne('${key}')">🖨 匯出本章講義 PDF</button>
+     <h2 class="title">第 ${c.num} 章　${c.title}</h2>
+     <div class="sub"><span class="en">${c.en}</span> <span class="pg">${c.pages}</span></div>
+
+     <div class="goal-box"><b>🎯 學習目標 Learning Objectives</b><ul class="clean">${goalsHtml}</ul></div>
+
+     <h3 class="sec"><span class="em">📖</span>重要名詞 Key Terms</h3>
+     ${termsHtml}
+
+     <h3 class="sec"><span class="em">🕐</span>應用時機 When to Apply</h3>
+     <div class="when">${c.when}</div>
+
+     <h3 class="sec"><span class="em">💡</span>書中例子 Examples from the Book</h3>
+     ${exHtml}
+   </div>
+
+   <div class="card quiz-card no-print">
+     <div class="quiz-head">
+       <h3 class="sec" style="border:0;margin:0"><span class="em">📝</span>理解測驗（10 題）Self-Test</h3>
+       <div class="score" id="score-${key}">作答進度 0 / 10　得分 0</div>
+     </div>
+     <p class="sub">點選答案即可立即看到對錯與詳解。</p>
+     ${quizHtml}
+   </div>`;
+}
+Object.keys(CH).forEach(renderChapter);
+
+/* ============ QUIZ INTERACTION ============ */
+const quizState={};
+function answer(el,key,qi){
+  const item=el.closest('.qitem');
+  if(item.dataset.done) return;
+  item.dataset.done='1';
+  const correct=el.dataset.correct==='true';
+  item.querySelectorAll('.choice').forEach(ch=>{
+    ch.classList.add('disabled');
+    if(ch.dataset.correct==='true') ch.classList.add('correct');
+  });
+  if(!correct) el.classList.add('wrong');
+  item.querySelector('.explain').classList.add('show');
+
+  quizState[key]=quizState[key]||{done:0,score:0};
+  quizState[key].done++;
+  if(correct)quizState[key].score++;
+  document.getElementById('score-'+key).textContent=
+    `作答進度 ${quizState[key].done} / 10　得分 ${quizState[key].score}`;
+}
+
+/* ============ PRINT / EXPORT PDF ============ */
+function printAll(){
+  document.body.classList.add('printing-all');
+  window.print();
+}
+function printOne(key){
+  document.body.classList.add('printing-one');
+  document.getElementById('view-'+key).classList.add('print-target');
+  window.print();
+}
+window.addEventListener('afterprint',()=>{
+  document.body.classList.remove('printing-all','printing-one');
+  document.querySelectorAll('.print-target').forEach(e=>e.classList.remove('print-target'));
+});
+</script>
+</body>
+</html>
