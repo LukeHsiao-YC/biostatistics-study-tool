@@ -34,6 +34,13 @@
   .s1 .go{color:#0d6e6e}
   .note{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:30px;box-shadow:var(--shadow);font-size:13.7px;color:#41505f}
   .note b{color:var(--ink)}
+  a.banner{display:flex;align-items:center;gap:16px;text-decoration:none;color:#fff;margin:-24px 0 20px;
+     background:linear-gradient(120deg,#443a7d,#7a5bb0);border-radius:16px;padding:20px 24px;box-shadow:var(--shadow);transition:.18s}
+  a.banner:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(30,50,90,.18)}
+  a.banner .ic{font-size:34px}
+  a.banner .bt{font-size:19px;font-weight:800;margin-bottom:2px}
+  a.banner .bd{font-size:13px;opacity:.92}
+  a.banner .arrow{margin-left:auto;font-size:20px;font-weight:800}
   footer{text-align:center;color:var(--muted);font-size:12.5px;padding:10px 20px 34px}
   @media(max-width:680px){.grid{grid-template-columns:1fr}header h1{font-size:22px}}
 </style>
@@ -45,6 +52,16 @@
 </header>
 
 <div class="wrap">
+
+  <a class="banner" href="tools.html">
+    <span class="ic">🧭</span>
+    <span>
+      <div class="bt">選擇器專區 · All-in-One Selectors</div>
+      <div class="bd">把各 Section 的所有互動選擇器整合在同一頁，一站式使用（各 Section 內頁仍保留各自選擇器）。</div>
+    </span>
+    <span class="arrow">→</span>
+  </a>
+
   <div class="grid">
 
     <a class="card s1" href="section1.html">

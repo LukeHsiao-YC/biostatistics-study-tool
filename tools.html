@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>選擇器專區 — 所有研究設計與統計選擇器 | Jekel 學習中心</title>
+<style>
+  :root{
+    --bg:#f4f5fb; --card:#ffffff; --ink:#1f2733; --muted:#5b6675;
+    --brand:#5a4b9c; --brand2:#7a5bb0; --accent:#c2571a;
+    --warn:#d97706; --bad:#c23b3b; --good:#128a5a;
+    --line:#e2e7f0; --chip:#efecf8; --shadow:0 2px 10px rgba(30,50,90,.07);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",Segoe UI,system-ui,sans-serif;
+       background:var(--bg);color:var(--ink);line-height:1.7;-webkit-font-smoothing:antialiased}
+  header.top{background:linear-gradient(120deg,#443a7d,#7a5bb0);color:#fff;padding:26px 20px 20px}
+  header.top h1{margin:0 0 4px;font-size:22px;letter-spacing:.5px}
+  header.top p{margin:0;opacity:.9;font-size:13.5px}
+  header.top a.home{color:#fff;text-decoration:none;font-size:13px;opacity:.9;border:1px solid rgba(255,255,255,.5);padding:3px 10px;border-radius:8px;display:inline-block;margin-bottom:10px}
+  header.top a.home:hover{background:rgba(255,255,255,.15)}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 16px}
+  nav.tabs{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);
+           display:flex;flex-wrap:wrap;gap:4px;padding:8px 10px;box-shadow:var(--shadow)}
+  nav.tabs button{border:0;background:transparent;color:var(--muted);font-size:14px;font-weight:600;
+        padding:9px 13px;border-radius:9px;cursor:pointer;font-family:inherit;transition:.15s}
+  nav.tabs button:hover{background:var(--chip);color:var(--ink)}
+  nav.tabs button.active{background:var(--brand);color:#fff}
+  nav.tabs button:disabled{opacity:.5;cursor:default}
+  main{padding:22px 0 70px}
+  section.view{display:none;animation:fade .25s ease}
+  section.view.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;margin:0 0 18px;box-shadow:var(--shadow)}
+  h2.title{font-size:20px;margin:0 0 4px;color:var(--brand)}
+  .sub{color:var(--muted);font-size:13.5px;margin:0 0 16px}
+  .tag{display:inline-block;background:var(--chip);color:var(--brand);border-radius:999px;padding:2px 10px;font-size:11.5px;font-weight:700;margin-bottom:10px}
+  .pill{display:inline-block;background:var(--chip);color:var(--brand);border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600;margin-left:6px}
+  .en{color:var(--brand2);font-style:italic;font-weight:600}
+  .pg{color:var(--accent);font-weight:700;font-size:12.5px;white-space:nowrap}
+  .q-block{border:1px solid var(--line);border-radius:12px;padding:16px 18px;background:#fbfbfe;margin-bottom:14px}
+  .q-block h3{margin:0 0 4px;font-size:15.5px}
+  .q-block .hint{font-size:12.5px;color:var(--muted);margin:0 0 12px}
+  .opts{display:flex;flex-wrap:wrap;gap:9px}
+  .opts button{border:1.5px solid var(--line);background:#fff;padding:9px 14px;border-radius:10px;cursor:pointer;
+        font-family:inherit;font-size:13.5px;color:var(--ink);transition:.12s;text-align:left}
+  .opts button:hover{border-color:var(--brand2);background:#f5f2fc}
+  .opts button.sel{border-color:var(--brand);background:var(--brand);color:#fff;box-shadow:0 2px 8px rgba(90,75,156,.3)}
+  .opts button small{display:block;font-size:11.5px;opacity:.8;font-weight:400;margin-top:2px}
+  .opts button.sel small{opacity:.9}
+  .result{margin-top:6px;border-radius:14px;border:2px solid var(--brand2);background:var(--chip);padding:20px}
+  .result.empty{border-color:var(--line);background:#fafbfd;color:var(--muted);text-align:center}
+  .result h3{margin:0 0 8px;color:var(--brand);font-size:18px}
+  .result .rec{font-size:17px;font-weight:700;color:var(--ink);margin:6px 0}
+  .result .alt{font-size:14px;color:var(--muted);margin:4px 0}
+  .result .why{background:#fff;border-radius:10px;padding:12px 14px;margin-top:12px;font-size:13.5px;border:1px solid #ddd6ef}
+  .reset{background:#fff;border:1px solid var(--line);color:var(--muted);padding:7px 14px;border-radius:9px;cursor:pointer;font-family:inherit;font-size:13px;margin-top:14px}
+  .reset:hover{border-color:var(--bad);color:var(--bad)}
+  .link{color:var(--brand);font-weight:600;font-size:13px;text-decoration:none}
+  .link:hover{text-decoration:underline}
+  .soonbox{text-align:center;color:var(--muted);padding:40px 20px}
+  .soonbox .big{font-size:34px;margin-bottom:10px}
+  footer{text-align:center;color:var(--muted);font-size:12.5px;padding:20px}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="home" href="index.html">🏠 回首頁</a>
+    <h1>🧭 選擇器專區 <span style="font-size:13px;opacity:.85">All-in-One Selectors</span></h1>
+    <p>把 Section 1–4 的所有互動選擇器整合在同一頁。各 Section 內頁仍保留各自的選擇器；此處方便你一站式使用。</p>
+  </div>
+</header>
+
+<nav class="tabs wrap" id="tabs">
+  <button data-t="design" class="active">研究設計選擇器</button>
+  <button data-t="measure">測量指標選擇器</button>
+  <button data-t="stat">統計方法選擇器</button>
+  <button data-t="s3" disabled>預防策略（準備中）</button>
+  <button data-t="s4" disabled>公衛行動（準備中）</button>
+</nav>
+
+<main class="wrap">
+
+  <section id="view-design" class="view active">
+    <div class="card">
+      <span class="tag">Section 1 · 流行病學</span>
+      <h2 class="title">🎯 研究設計選擇器 <span class="pill">Choosing a Research Design</span></h2>
+      <p class="sub">依你的研究目的與可行性，建議適當的流行病學研究設計。 · <a class="link" href="section1.html">前往 Section 1 完整內容 →</a></p>
+      <div data-selector="design"></div>
+    </div>
+  </section>
+
+  <section id="view-measure" class="view">
+    <div class="card">
+      <span class="tag">Section 1 · 流行病學</span>
+      <h2 class="title">📏 測量指標選擇器 <span class="pill">Choosing an Epidemiologic Measure</span></h2>
+      <p class="sub">你想「量化什麼」？建議該用哪個流行病學指標並說明白話意義與公式。 · <a class="link" href="section1.html">前往 Section 1 完整內容 →</a></p>
+      <div data-selector="measure"></div>
+    </div>
+  </section>
+
+  <section id="view-stat" class="view">
+    <div class="card">
+      <span class="tag">Section 2 · 生物統計</span>
+      <h2 class="title">📊 統計方法選擇器 <span class="pill">Choosing a Statistical Test</span></h2>
+      <p class="sub">依你的資料型態與研究設計，建議適當的統計方法（課本 Table 10.1 / 11.1）。 · <a class="link" href="section2.html">前往 Section 2 完整內容 →</a></p>
+      <div data-selector="stat"></div>
+    </div>
+  </section>
+
+  <section id="view-s3" class="view">
+    <div class="card"><div class="soonbox"><div class="big">🚧</div>
+      <b>預防策略選擇器 / 篩檢適當性檢核</b><br>將於 Section 3（預防醫學）完成後加入此專區。</div></div>
+  </section>
+  <section id="view-s4" class="view">
+    <div class="card"><div class="soonbox"><div class="big">🚧</div>
+      <b>公共衛生行動導覽</b><br>將於 Section 4（公共衛生）完成後加入此專區。</div></div>
+  </section>
+
+</main>
+
+<footer>
+  所有選擇器由共用模組 <code>assets/selectors.js</code> 提供，與各 Section 內頁使用相同邏輯。<br>
+  內容整理自《Jekel's Epidemiology, Biostatistics, Preventive Medicine and Public Health》。學習輔助用途，決策請以原著與專業意見為準。
+</footer>
+
+<script>
+document.getElementById('tabs').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b||b.disabled)return;
+  document.querySelectorAll('#tabs button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+b.dataset.t).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+</script>
+<script src="assets/selectors.js"></script>
+</body>
+</html>
