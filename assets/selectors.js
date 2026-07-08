@@ -325,6 +325,78 @@ screening:{
     why:'疾病、檢驗、醫療體系三大要求皆符合。仍要注意：前導時間偏差（看似延長存活其實只是提早診斷）、長度偏差（篩檢偏向抓到進展較慢的病例）。 <span class="pg">Ch16 p.237–241</span>'};
   return null;
  }
+},
+
+/* ===== Section 4 · 公共衛生行動導覽 ===== */
+navigator:{
+ label:'公共衛生行動導覽', pill:'Public Health Action Navigator', section:'Section 4 公共衛生',
+ intro:'依你面對的公衛情境，導引到對應的核心功能／架構與章節。',
+ questions:[
+  {id:'cat',t:'Q1. 你面對的是哪一類公共衛生情境？',h:'先選最接近的大方向。',
+   o:[['assess','了解／評估一個族群的健康狀況','想知道族群有多健康、主要健康問題是什麼'],
+      ['policy','制定政策或確保服務被提供','政策倡議、法規、確保必要服務到位'],
+      ['community','在社區推動健康改變或計畫','設計社區健康促進方案'],
+      ['disaster','災難或緊急事件的應變','天災、疫情、重大事故'],
+      ['quality','醫療服務的品質與組織','評估或改善照護品質'],
+      ['finance','醫療政策與財源／給付','保險、給付、成本、國際比較'],
+      ['onehealth','人、動物、環境健康的整合','跨領域的整體健康']]},
+  {id:'phase',t:'Q2. 災難處於哪個階段？',h:'災難管理四階段。',
+   o:[['mitigation','減災 Mitigation','事前降低風險與脆弱度'],
+      ['preparedness','整備 Preparedness','演練、計畫、資源預備'],
+      ['response','應變 Response','事件當下的緊急處置與監測'],
+      ['recovery','復原 Recovery','事後重建與長期健康追蹤']]},
+  {id:'measure',t:'Q2. 你想用哪個面向評估族群健康？',h:'',
+   o:[['mortality','死亡與疾病負擔','主要死因、死亡率'],
+      ['actual','實際死因 Actual causes','背後的行為/暴露（如吸菸、飲食、活動）'],
+      ['daly','失能校正生命年 DALY','兼顧死亡與失能的綜合指標'],
+      ['disparity','健康差異 Disparities','不同族群間的健康不平等']]}
+ ],
+ visibility(s,show){ show('phase', s.cat==='disaster'); show('measure', s.cat==='assess'); },
+ recommend(s){
+  if(!s.cat) return null;
+  if(s.cat==='assess'){
+   if(!s.measure) return null;
+   const m={
+    mortality:['主要死因與死亡率','用死亡證明、生命統計等監測資料看族群主要死因與疾病負擔。 <span class="pg">Ch24 p.337, 342</span>'],
+    actual:['實際死因 Actual Causes of Death','看「背後的行為與暴露」——如菸草、飲食與活動——而非只看死亡證明上的疾病診斷（McGinnis & Foege）。 <span class="pg">Ch24 p.338</span>'],
+    daly:['失能校正生命年 DALY','同時計入「早逝」與「失能」的綜合健康指標，用於比較疾病負擔。 <span class="pg">Ch24 p.338</span>'],
+    disparity:['健康差異 Health Disparities','比較不同社經/族群間的健康不平等，指認需優先介入的族群。 <span class="pg">Ch24 p.339</span>']
+   }[s.measure];
+   return {title:'公衛核心功能一：評估 Assessment',rec:m[0],
+     alt:'屬三大核心功能中的「評估」：系統性收集、分析並公開族群健康資料。',why:m[1]};
+  }
+  if(s.cat==='policy') return {title:'公衛核心功能二/三：政策制定與確保',
+    rec:'Policy Development & Assurance ＋ 10 項基本公衛服務',
+    alt:'政策制定＝以科學證據形成公衛政策；確保＝運用職權與資源確保必要服務被提供（未必親自提供）。',
+    why:'三大核心功能為評估、政策制定、確保 (assessment, policy development, assurance)，並以「10 項基本公共衛生服務」具體落實。 <span class="pg">Ch24 p.353 · Ch25 Box 25.1</span>'};
+  if(s.cat==='community') return {title:'社區健康改變',
+    rec:'社區改變理論 + 健康促進計畫步驟',
+    alt:'常用理論：社會認知理論、社區組織理論、創新擴散理論、社會行銷；並以健康公平為目標。',
+    why:'在社區推動改變時，先選合適的行為/社區改變理論，再依步驟（定義策略、組隊、評估需求、執行、評價）設計方案。 <span class="pg">Ch26 p.369–374</span>'};
+  if(s.cat==='disaster'){
+   if(!s.phase) return null;
+   const p={
+    mitigation:['減災 Mitigation','事前降低風險與脆弱度（如建築規範、土地使用、風險評估）。'],
+    preparedness:['整備 Preparedness','演練、應變計畫、人力物資與監測系統的預先準備。'],
+    response:['應變 Response','事件當下的緊急醫療、快速需求評估與疾病監測（如世貿中心健康登錄）。'],
+    recovery:['復原 Recovery','事後重建與受影響者的長期身心健康追蹤。']
+   }[s.phase];
+   return {title:'災難流行病學 · '+p[0],rec:'災難管理階段：'+p[0],
+     alt:'災難管理四階段：減災 → 整備 → 應變 → 復原。',
+     why:p[1]+' 災難流行病學以描述與分析流病量化衝擊並指引資源。 <span class="pg">Ch27 p.384–385</span>'};
+  }
+  if(s.cat==='quality') return {title:'醫療照護品質與組織',
+    rec:'Donabedian 結構–過程–結果 ＋ IOM 六大目標 ＋ 三重目標',
+    alt:'Donabedian：以結構(structure)、過程(process)、結果(outcome)評估品質；IOM 六大目標：安全、有效、以病人為中心、及時、有效率、公平。',
+    why:'品質改善以 Donabedian 架構評估，追求 IOM 六大目標；三重目標 (Triple Aim)＝照護體驗、族群健康、照護成本。 <span class="pg">Ch28 p.392, 401</span>'};
+  if(s.cat==='finance') return {title:'醫療政策與財源',
+    rec:'給付者與政策：Medicare / Medicaid、需求與供給、國際比較',
+    alt:'Medicare＝聯邦、主要給老年與身心障礙者；Medicaid＝聯邦與州合辦、給低收入者。',
+    why:'健康政策關注需要(need)與需求(demand)、財源與給付制度，並常以國際比較檢視成效與成本。 <span class="pg">Ch29 p.408–410</span>'};
+  return {title:'One Health 一體健康',rec:'整合人、動物、環境健康',
+    alt:'許多威脅（如新興人畜共通傳染病、環境變遷）需跨領域協作。',
+    why:'One Health 強調人類、動物與環境健康彼此相依，需整合流行病學、生統、預防醫學與公衛一起行動。 <span class="pg">Ch30 p.349, 423</span>'};
+ }
 }
 
 }; // end SELECTORS

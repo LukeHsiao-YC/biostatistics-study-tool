@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>公共衛生學習助手 — Jekel's Public Health (Section 4)</title>
+<style>
+  :root{
+    --bg:#f3f4f9; --card:#ffffff; --ink:#1f2733; --muted:#5b6675;
+    --brand:#6b4b9a; --brand2:#7a5bb0; --accent:#0d6e6e; --accent2:#e7f4f4;
+    --warn:#d97706; --bad:#c23b3b; --good:#128a5a;
+    --line:#e4e2ee; --chip:#f0ebf7; --shadow:0 2px 10px rgba(30,50,90,.07);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",Segoe UI,system-ui,sans-serif;
+       background:var(--bg);color:var(--ink);line-height:1.7;-webkit-font-smoothing:antialiased}
+  header.top{background:linear-gradient(120deg,#4a3a78,#7a5bb0);color:#fff;padding:26px 20px 20px}
+  header.top h1{margin:0 0 4px;font-size:22px;letter-spacing:.5px}
+  header.top p{margin:0;opacity:.9;font-size:13.5px}
+  header.top a.home{color:#fff;text-decoration:none;font-size:13px;opacity:.9;border:1px solid rgba(255,255,255,.5);padding:3px 10px;border-radius:8px;display:inline-block;margin-bottom:10px}
+  header.top a.home:hover{background:rgba(255,255,255,.15)}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 16px}
+  nav.tabs{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);
+           display:flex;flex-wrap:wrap;gap:4px;padding:8px 10px;box-shadow:var(--shadow)}
+  nav.tabs button{border:0;background:transparent;color:var(--muted);font-size:13.5px;font-weight:600;
+        padding:8px 11px;border-radius:9px;cursor:pointer;font-family:inherit;transition:.15s}
+  nav.tabs button:hover{background:var(--chip);color:var(--ink)}
+  nav.tabs button.active{background:var(--brand);color:#fff}
+  main{padding:22px 0 60px}
+  section.view{display:none;animation:fade .25s ease}
+  section.view.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;margin:0 0 18px;box-shadow:var(--shadow)}
+  h2.title{font-size:20px;margin:0 0 4px;color:var(--brand)}
+  .sub{color:var(--muted);font-size:13.5px;margin:0 0 16px}
+  .pill{display:inline-block;background:var(--chip);color:var(--brand);border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600;margin-left:6px}
+  .en{color:var(--brand2);font-style:italic;font-weight:600}
+  .pg{color:var(--accent);font-weight:700;font-size:12.5px;white-space:nowrap}
+  .q-block{border:1px solid var(--line);border-radius:12px;padding:16px 18px;background:#fcfbfe;margin-bottom:14px}
+  .q-block h3{margin:0 0 4px;font-size:15.5px}
+  .q-block .hint{font-size:12.5px;color:var(--muted);margin:0 0 12px}
+  .opts{display:flex;flex-wrap:wrap;gap:9px}
+  .opts button{border:1.5px solid var(--line);background:#fff;padding:9px 14px;border-radius:10px;cursor:pointer;
+        font-family:inherit;font-size:13.5px;color:var(--ink);transition:.12s;text-align:left}
+  .opts button:hover{border-color:var(--brand2);background:#f6f2fc}
+  .opts button.sel{border-color:var(--brand);background:var(--brand);color:#fff;box-shadow:0 2px 8px rgba(107,75,154,.3)}
+  .opts button small{display:block;font-size:11.5px;opacity:.8;font-weight:400;margin-top:2px}
+  .opts button.sel small{opacity:.9}
+  .result{margin-top:6px;border-radius:14px;border:2px solid var(--brand2);background:var(--chip);padding:20px}
+  .result.empty{border-color:var(--line);background:#fafbfd;color:var(--muted);text-align:center}
+  .result h3{margin:0 0 8px;color:var(--brand);font-size:18px}
+  .result .rec{font-size:17px;font-weight:700;color:var(--ink);margin:6px 0}
+  .result .alt{font-size:14px;color:var(--muted);margin:4px 0}
+  .result .why{background:#fff;border-radius:10px;padding:12px 14px;margin-top:12px;font-size:13.5px;border:1px solid #ddd6ef}
+  .reset{background:#fff;border:1px solid var(--line);color:var(--muted);padding:7px 14px;border-radius:9px;cursor:pointer;font-family:inherit;font-size:13px;margin-top:14px}
+  .reset:hover{border-color:var(--bad);color:var(--bad)}
+  .goal-box{background:linear-gradient(120deg,#f0ebf7,#e7f4f4);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:12px 16px;margin:0 0 16px}
+  .goal-box b{color:var(--brand)}
+  h3.sec{font-size:16px;margin:20px 0 8px;padding-bottom:5px;border-bottom:2px solid var(--chip);color:var(--ink)}
+  h3.sec .em{font-size:18px;margin-right:6px}
+  .term{border:1px solid var(--line);border-radius:10px;padding:11px 14px;margin:8px 0;background:#fcfbfe}
+  .term .t-name{font-weight:700;font-size:14.5px}
+  .term .t-def{font-size:13.5px;color:#38424f;margin-top:2px}
+  ul.clean{margin:6px 0;padding-left:20px}
+  ul.clean li{margin:5px 0;font-size:14px}
+  .ex{background:#f6f2fc;border:1px solid #e0d7f0;border-radius:10px;padding:12px 15px;margin:8px 0;font-size:13.8px}
+  .ex b{color:var(--brand)}
+  .when{background:#e9f6f2;border:1px solid #cde8dd;border-radius:10px;padding:12px 15px;font-size:13.8px}
+  table.ref{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+  table.ref th,table.ref td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+  table.ref th{background:var(--chip);color:var(--brand)}
+  .print-btn{background:var(--brand);color:#fff;border:0;padding:8px 15px;border-radius:9px;cursor:pointer;font-family:inherit;font-size:13px;float:right}
+  .print-btn:hover{background:#4a3a78}
+  .quiz-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+  .score{font-weight:700;color:var(--brand);font-size:14px}
+  .qitem{border:1px solid var(--line);border-radius:12px;padding:15px 17px;margin:12px 0;background:#fff}
+  .qitem .qq{font-weight:600;font-size:14.5px;margin-bottom:10px}
+  .qitem .qq span.n{display:inline-block;background:var(--brand);color:#fff;border-radius:6px;padding:1px 8px;font-size:12.5px;margin-right:8px}
+  .choice{display:block;border:1.5px solid var(--line);border-radius:9px;padding:9px 13px;margin:6px 0;cursor:pointer;font-size:13.8px;transition:.12s;background:#fdfdfe}
+  .choice:hover{border-color:var(--brand2);background:#f7f4fc}
+  .choice.correct{border-color:var(--good);background:#e9f8f0}
+  .choice.wrong{border-color:var(--bad);background:#fbecec}
+  .choice.disabled{cursor:default;pointer-events:none;opacity:.85}
+  .choice .k{font-weight:700;margin-right:7px;color:var(--brand)}
+  .explain{display:none;margin-top:9px;padding:10px 13px;border-radius:9px;background:#f4f0fa;font-size:13px;border-left:3px solid var(--brand2)}
+  .explain.show{display:block}
+  .explain b{color:var(--good)}
+  footer{text-align:center;color:var(--muted);font-size:12.5px;padding:20px}
+  #pdfAll{position:fixed;right:18px;bottom:18px;z-index:50;background:var(--accent);color:#fff;border:0;
+      padding:12px 18px;border-radius:999px;cursor:pointer;font-family:inherit;font-size:14px;font-weight:700;
+      box-shadow:0 4px 16px rgba(13,110,110,.4)}
+  @media print{
+    header.top,nav.tabs,.reset,footer,.no-print,#pdfAll{display:none!important}
+    body{background:#fff}
+    .card{box-shadow:none;border:1px solid #ccc;break-inside:avoid}
+    body.printing-all .view{display:block!important;break-before:page}
+    body.printing-all #view-ch24{break-before:auto}
+    body.printing-all #view-navigator{display:none!important}
+    body.printing-all .quiz-card{display:none!important}
+    body.printing-one .view{display:none!important}
+    body.printing-one .view.print-target{display:block!important}
+    body.printing-one .quiz-card{display:none!important}
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="home" href="index.html">🏠 回首頁</a>
+    <h1>公共衛生學習助手 <span style="font-size:13px;opacity:.85">Public Health Study Companion</span></h1>
+    <p>依據《Jekel's ... Public Health》Section 4（第 24–30 章）· 公共衛生行動導覽 + 白話講義 + 測驗</p>
+  </div>
+</header>
+
+<nav class="tabs wrap" id="tabs">
+  <button data-t="navigator" class="active">🧭 公共衛生行動導覽</button>
+  <button data-t="ch24">24 公衛導論</button>
+  <button data-t="ch25">25 美國公衛體系</button>
+  <button data-t="ch26">26 社區公衛</button>
+  <button data-t="ch27">27 災難流病</button>
+  <button data-t="ch28">28 衛生服務與品質</button>
+  <button data-t="ch29">29 醫療政策與財源</button>
+  <button data-t="ch30">30 One Health</button>
+</nav>
+
+<main class="wrap">
+  <section id="view-navigator" class="view active">
+    <div class="card">
+      <h2 class="title">🧭 公共衛生行動導覽 <span class="pill">Public Health Action Navigator</span></h2>
+      <p class="sub">公共衛生偏向「架構與體系」而非單一算式。依你面對的情境，導引到對應的核心功能／架構與章節。</p>
+      <div data-selector="navigator"></div>
+    </div>
+    <div class="card">
+      <h3 class="sec"><span class="em">🗺️</span>公衛核心速查 <span class="pg">Ch24 p.353 · Ch25 Box 25.1</span></h3>
+      <table class="ref">
+        <tr><th>三大核心功能</th><th>意義</th></tr>
+        <tr><td>評估 Assessment</td><td>系統性收集、分析並公開族群健康資料</td></tr>
+        <tr><td>政策制定 Policy development</td><td>以科學證據形成公衛政策與領導</td></tr>
+        <tr><td>確保 Assurance</td><td>運用職權與資源，確保必要服務被提供（未必親自提供）</td></tr>
+      </table>
+      <p class="sub" style="margin-top:10px">上述三大功能由「10 項基本公共衛生服務 (10 Essential Public Health Services)」具體落實。</p>
+    </div>
+  </section>
+
+  <section id="view-ch24" class="view"></section>
+  <section id="view-ch25" class="view"></section>
+  <section id="view-ch26" class="view"></section>
+  <section id="view-ch27" class="view"></section>
+  <section id="view-ch28" class="view"></section>
+  <section id="view-ch29" class="view"></section>
+  <section id="view-ch30" class="view"></section>
+</main>
+
+<button id="pdfAll" class="no-print" onclick="printAll()">📄 匯出全部講義為 PDF</button>
+<footer>
+  內容整理自《Jekel's Epidemiology, Biostatistics, Preventive Medicine and Public Health》Section 4 Public Health（第 24–30 章）。<br>
+  頁碼為課本內文頁碼。本工具為學習輔助，政策/實務決策請以原著與專業意見為準。
+</footer>
+
+<script>
+document.getElementById('tabs').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return;
+  document.querySelectorAll('#tabs button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+b.dataset.t).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+const CH={
+ch24:{num:24,title:'公共衛生導論',en:'Introduction to Public Health',pages:'p.336–353',
+ goals:['理解公共衛生的定義：社會集體努力創造使人健康的條件。','認識評估族群健康的方法：主要死因、實際死因、DALY、健康差異。','熟悉公共衛生的資料來源（監測、普查、生命統計、死亡證明）。','了解公共衛生的三大核心功能。'],
+ terms:[['公共衛生','Public health','「我們作為社會，集體努力以確保人們得以健康的條件」(IOM 定義)。'],['三大核心功能','Three core functions','評估 (assessment)、政策制定 (policy development)、確保 (assurance)。'],['實際死因','Actual causes of death','死亡背後的行為與暴露（菸草、飲食與活動等），而非死亡證明上的疾病診斷。'],['失能校正生命年','Disability-Adjusted Life Years (DALY)','同時計入早逝與失能的綜合疾病負擔指標。'],['健康差異','Health disparities','不同社經/族群間可避免的健康不平等。'],['生命統計','Vital statistics','出生、死亡等法定登記資料，是公衛的重要數據來源。'],['死亡證明','Death certificate','記錄死因的法定文件，但常無法反映完整因果鏈。'],['普查','Census','全人口計數，提供率的分母與人口結構。']],
+ when:'<b>當你要「描述一個族群的健康問題與優先順序」時。</b>先問主要死因與疾病負擔（DALY），再追背後的實際死因（行為/暴露），並檢視健康差異以鎖定優先介入族群。',
+ examples:[['實際死因 vs 疾病死因','死亡證明常寫「心臟病、癌症」，但背後的實際死因是吸菸、不良飲食與缺乏運動——公衛介入要對準後者。 <span class="pg">p.338</span>'],['死亡證明的限制','死亡證明不易呈現完整因果鏈，且吸菸等欄位常填寫不一致。 <span class="pg">p.342</span>'],['DALY 綜合負擔','DALY 兼顧「早死」與「帶病失能」，比單看死亡率更能反映真正的疾病負擔。 <span class="pg">p.338</span>']]},
+ch25:{num:25,title:'美國公共衛生體系：結構與功能',en:'The US Public Health System',pages:'p.354–368',
+ goals:['了解聯邦、州、地方三級政府在公衛的職責分工。','認識憲法賦予公衛的權力來源（商業管制、課稅、警察權）。','掌握「10 項基本公共衛生服務」如何落實三大核心功能。','理解公私部門在公衛中的協作。'],
+ terms:[['聯邦政府職責','Federal responsibilities','跨州事務、商業管制、課稅與經費、全國性標準與機構（如 CDC）。'],['州的警察權','State police power','州保護民眾健康安全的憲法權力，是公衛法規的基礎。'],['地方衛生機關','Local health department','第一線提供公衛服務與因應。'],['10 項基本公衛服務','10 Essential Public Health Services','把三大核心功能具體化的服務清單（監測、調查、教育、政策、稽核等）。'],['確保角色','Assurance role','衛生機關有相當彈性，未必親自提供所有服務，但須確保其被提供。'],['商業管制','Regulation of commerce','聯邦透過管制跨州商業影響健康（如食品藥物）。']],
+ when:'<b>當你要理解「一項公衛工作該由誰負責、依什麼權力執行」時。</b>聯邦訂標準與跨州事務、州憑警察權立法、地方第一線執行；用 10 項基本服務檢核功能是否完整。',
+ examples:[['三級政府分工','聯邦（跨州、標準、經費）、州（立法、警察權）、地方（第一線服務）各司其職。 <span class="pg">p.354</span>'],['確保≠親自提供','衛生機關可透過政策、法規與夥伴確保服務被提供，不必事事親力親為。 <span class="pg">p.354（assurance）</span>'],['10 項基本服務','以監測、疫調、衛教、政策制定、稽核評估等 10 項服務落實核心功能。 <span class="pg">Box 25.1</span>']]},
+ch26:{num:26,title:'改善社區的公共衛生',en:'Improving Public Health in Communities',pages:'p.369–383',
+ goals:['認識社區與行為改變的主要理論。','了解設計健康促進方案的步驟。','掌握以「健康公平 (health equity)」為導向的介入。','理解社會行銷與傳播在公衛的角色。'],
+ terms:[['社會認知理論','Social cognitive theory','行為受個人、環境與行為交互影響（含自我效能）。'],['社區組織理論','Community organization theories','動員社區成員共同界定問題並行動。'],['創新擴散理論','Diffusion of innovations','新觀念/行為如何在人群中逐步被採納（創新者→早期採用者→…）。'],['社會行銷','Social marketing','用行銷手法推廣健康行為。'],['健康公平','Health equity','讓每個人都有機會達到最佳健康，消除可避免的差異。'],['健康促進計畫步驟','Program planning steps','定義策略、組隊、評估需求、執行、評價。'],['傳播理論','Communication theory','設計有效健康訊息與管道。']],
+ when:'<b>當你要在社區推動一項健康改變時。</b>先挑合適的行為/社區理論（如創新擴散、社會認知），以健康公平為目標，再依「評估需求→設計→執行→評價」的步驟推動。',
+ examples:[['創新擴散','戒菸、篩檢等新行為的普及，常依創新者→早期採用者→多數→落後者的擴散路徑。 <span class="pg">p.371</span>'],['社會行銷','用商業行銷技巧（受眾分析、訊息設計）推廣健康行為。 <span class="pg">p.372</span>'],['以健康公平為導向','方案設計應優先縮小可避免的族群健康差異。 <span class="pg">p.372</span>']]},
+ch27:{num:27,title:'災難流行病學與監測',en:'Disaster Epidemiology and Surveillance',pages:'p.384–391',
+ goals:['認識災難的健康負擔與研究災難的目的。','區分描述性與分析性災難流行病學。','掌握災難管理四階段：減災、整備、應變、復原。','了解快速需求評估與災後監測（登錄）的作用。'],
+ terms:[['災難流行病學','Disaster epidemiology','以流行病學方法量化災難的健康衝擊並指引因應。'],['減災','Mitigation','事前降低風險與脆弱度（建築規範、土地使用）。'],['整備','Preparedness','演練、計畫、人力物資與監測系統的預備。'],['應變','Response','事件當下的緊急醫療、快速需求評估與監測。'],['復原','Recovery','事後重建與受影響者的長期身心健康追蹤。'],['描述性 vs 分析性','Descriptive vs Analytic','描述衝擊的時間地點人 vs 檢驗暴露與健康效應的關聯。'],['快速需求評估','Rapid needs assessment','災後迅速評估受災族群的健康與資源需求。'],['健康登錄','Health registry','長期追蹤受災者健康的系統（如世貿中心健康登錄）。']],
+ when:'<b>面對天災、疫情或重大事故時。</b>用四階段思考：事前減災與整備、事發應變、事後復原；並以災難流行病學做快速需求評估與長期監測。',
+ examples:[['世貿中心健康登錄','9/11 後建立的健康登錄追蹤三萬多名倖存者與救難人員的心血管、PTSD、呼吸道等長期健康影響。 <span class="pg">Box 27.1 p.386</span>'],['災難管理四階段','減災→整備→應變→復原，是規劃災難因應的骨架。 <span class="pg">p.384–385</span>'],['描述性災難流病','以時間、地點、人描述災難衝擊，是應變決策的第一步。 <span class="pg">p.385</span>']]},
+ch28:{num:28,title:'衛生服務組織、財務與品質改善',en:'Health Services Organization, Financing, and Quality Improvement',pages:'p.392–407',
+ goals:['了解美國醫療體系的組織與遞送結構。','掌握 Donabedian 品質評估架構：結構、過程、結果。','認識 IOM 六大品質目標與三重目標 (Triple Aim)。','理解品質改善的基本方法。'],
+ terms:[['Donabedian 架構','Donabedian framework','以結構(structure)、過程(process)、結果(outcome)三面向評估醫療品質。'],['結構','Structure','提供照護的物力與人力資源（設備、人員）。'],['過程','Process','照護實際如何執行（醫療行為、流程）。'],['結果','Outcome','照護對健康的最終影響。'],['IOM 六大目標','Six aims','安全、有效、以病人為中心、及時、有效率、公平。'],['三重目標','Triple Aim','照護體驗、族群健康、照護成本三者兼顧。'],['品質改善','Quality improvement (QI)','以資料驅動、持續改善照護流程與結果。']],
+ when:'<b>當你要評估或改善醫療照護品質時。</b>用 Donabedian 從結構、過程、結果三面向診斷；對準 IOM 六大目標，並以三重目標平衡體驗、族群健康與成本。',
+ examples:[['Donabedian 三面向','要看品質，就分別檢視「有什麼資源(結構)、怎麼做(過程)、結果如何(outcome)」。 <span class="pg">p.401</span>'],['IOM 六大目標','高品質照護應同時安全、有效、以病人為中心、及時、有效率且公平。 <span class="pg">p.401</span>'],['三重目標','改善醫療體系要同時兼顧照護體驗、族群健康與成本，缺一不可。 <span class="pg">p.401</span>']]},
+ch29:{num:29,title:'醫療照護組織、政策與財源',en:'Health Care Organization, Policy, and Financing',pages:'p.408–422',
+ goals:['認識健康政策的基本術語（需要 vs 需求）。','了解影響醫療需要與需求的因素。','掌握主要給付制度：Medicare 與 Medicaid 的差別。','能以國際比較檢視醫療體系的成效與成本。'],
+ terms:[['需要 vs 需求','Need vs Demand','需要＝專業判定應獲得的照護；需求＝人們實際尋求/購買的照護。'],['Medicare','Medicare','聯邦保險，主要給老年人與部分身心障礙者。'],['Medicaid','Medicaid','聯邦與州合辦，給低收入族群的保險。'],['第三方給付者','Third-party payer','由保險等第三方支付醫療費用。'],['國際比較','International comparison','以他國體系對照本國的成本與成效。'],['健康政策','Health policy','影響醫療資源分配、可近性與品質的公共決策。'],['可近性','Access','民眾能否及時取得所需照護。']],
+ when:'<b>當你要理解「誰付錢、政策如何影響醫療」時。</b>先分清「需要」與「需求」，認識 Medicare（老人）與 Medicaid（低收入）等給付制度，並用國際比較檢視成本效益。',
+ examples:[['Medicare vs Medicaid','Medicare 主要給老年/身障（聯邦）；Medicaid 給低收入（聯邦與州合辦）——常被混淆但對象不同。 <span class="pg">p.410</span>'],['需要 vs 需求','專業認為「需要」的照護，未必等於民眾實際「需求」的照護，兩者落差影響政策。 <span class="pg">p.409–410</span>'],['國際比較','美國醫療支出高但部分成效未必領先，凸顯以國際比較檢視體系的價值。 <span class="pg">p.410</span>']]},
+ch30:{num:30,title:'整合臨床、研究與公衛行動：One Health',en:'One Science, One Planet, One Health',pages:'p.423–430',
+ goals:['理解流行病學、生物統計、預防醫學與公衛如何整合為一體。','認識 One Health：人、動物、環境健康彼此相依。','了解跨領域協作對新興威脅的必要性。','綜整全書：從個人到族群、從臨床到政策的連貫視角。'],
+ terms:[['One Health','One Health','人類、動物與環境健康相互依存，需跨領域整合的取向。'],['整合取向','Integration','把流病、生統、預防醫學與公衛結合，形成完整的健康行動。'],['人畜共通傳染病','Zoonoses','在動物與人之間傳播的疾病，是 One Health 的重要議題。'],['環境變遷','Environmental change','氣候與生態變化對人類與動物健康的衝擊。'],['跨部門協作','Intersectoral collaboration','衛生、農業、環境等部門共同行動。']],
+ when:'<b>面對跨越人、動物、環境界線的健康威脅時（如新興傳染病、氣候變遷）。</b>採 One Health 取向，整合本書四大領域一起行動，而非各自為政。',
+ examples:[['One Health 的核心','人、動物、環境健康相依；新興人畜共通傳染病需三者一起因應。 <span class="pg">p.349, 423</span>'],['四領域整合','流行病學、生物統計、預防醫學與公衛整合，才能從證據走到有效行動。 <span class="pg">p.423</span>'],['一星球一健康','全球化下的健康威脅跨越國界與物種，呼應「one planet, one health」。 <span class="pg">p.423</span>']]}
+};
+
+const QUIZ={
+ch24:[
+ ['IOM 對公共衛生的定義強調？',['個別醫師的診療','社會集體努力創造使人健康的條件','醫院的手術量','藥廠的研發'],1,'公衛是「社會集體努力確保人們得以健康的條件」。'],
+ ['公共衛生的三大核心功能是？',['診斷、治療、復健','評估、政策制定、確保','初段、次段、三段','結構、過程、結果'],1,'assessment, policy development, assurance。'],
+ ['「實際死因 (actual causes of death)」指的是？',['死亡證明上的疾病','背後的行為與暴露（如吸菸、飲食）','醫院代碼','保險分類'],1,'實際死因指行為/暴露，而非證明上的疾病名。'],
+ ['最常見的實際死因之一是？',['血型','菸草使用','身高','出生地'],1,'吸菸是最主要的可預防實際死因之一。'],
+ ['DALY 這個指標同時考慮？',['費用與時間','早逝與失能','醫師與病人','結構與過程'],1,'DALY 兼顧早死與帶病失能。'],
+ ['健康差異 (health disparities) 指的是？',['隨機誤差','不同族群間可避免的健康不平等','檢驗誤差','疾病分期'],1,'指可避免的族群健康不平等。'],
+ ['死亡證明作為資料來源的限制是？',['太貴','不易反映完整因果鏈、填寫不一致','沒有日期','無法取得'],1,'死亡證明常無法呈現完整因果鏈。'],
+ ['普查 (census) 對公衛的主要貢獻是？',['提供治療','提供率的分母與人口結構','診斷疾病','發放疫苗'],1,'普查提供人口分母與結構。'],
+ ['要鎖定「優先介入的族群」，應檢視？',['醫院數','健康差異','疫苗種類','病歷字數'],1,'健康差異指認需優先介入的族群。'],
+ ['公衛評估族群健康的第一步通常是？',['蓋醫院','用監測/生命統計看主要死因與疾病負擔','立即立法','進行手術'],1,'先用資料描述主要死因與負擔。']
+],
+ch25:[
+ ['美國公衛的三級政府是？',['聯邦、州、地方','醫院、診所、藥局','初段、次段、三段','個人、家庭、社區'],0,'聯邦、州、地方三級。'],
+ ['州政府制定公衛法規的憲法基礎是？',['商業管制','警察權 (police power)','課稅','外交權'],1,'州以警察權保護民眾健康安全。'],
+ ['「10 項基本公共衛生服務」的作用是？',['取代醫師','把三大核心功能具體落實','計算死亡率','發放保險'],1,'10 項基本服務落實三大核心功能。'],
+ ['「確保 (assurance)」角色的意思是？',['親自提供所有服務','確保必要服務被提供（未必親自提供）','只做研究','只管收費'],1,'衛生機關確保服務被提供，不必事事親為。'],
+ ['聯邦政府的公衛職責偏向？',['第一線家訪','跨州事務、標準與經費（如 CDC）','社區巡守','個別診療'],1,'聯邦管跨州、標準與全國性機構。'],
+ ['地方衛生機關的角色偏向？',['制定外交政策','第一線提供公衛服務與因應','管理軍隊','設定利率'],1,'地方是第一線服務與因應。'],
+ ['聯邦透過「商業管制」影響健康的例子是？',['管制食品藥物','決定地方學區','發放駕照','管理停車'],0,'聯邦以跨州商業管制影響食品藥物等。'],
+ ['三大核心功能不包含下列何者？',['評估','政策制定','確保','手術'],3,'核心功能是評估、政策制定、確保。'],
+ ['公衛服務常需要何種協作？',['僅政府內部','公私部門與跨部門協作','只靠醫院','只靠個人'],1,'公衛倚賴公私與跨部門協作。'],
+ ['要檢核一地公衛「功能是否完整」，可對照？',['GDP','10 項基本公共衛生服務','醫院床數','人口總數'],1,'用 10 項基本服務檢核功能完整性。']
+],
+ch26:[
+ ['社會認知理論強調行為受什麼影響？',['僅基因','個人、環境與行為的交互（含自我效能）','僅運氣','僅收入'],1,'社會認知理論強調三者交互與自我效能。'],
+ ['創新擴散理論描述？',['疾病傳播','新觀念/行為在人群中被逐步採納的過程','細胞分裂','財務流動'],1,'描述創新如何從創新者擴散到多數。'],
+ ['社會行銷 (social marketing) 是指？',['賣藥','用行銷手法推廣健康行為','社群媒體廣告收入','醫院公關'],1,'以行銷技巧推廣健康行為。'],
+ ['「健康公平 (health equity)」的目標是？',['人人結果相同','消除可避免的健康差異、人人有機會達最佳健康','降低成本','增加醫院'],1,'健康公平＝消除可避免差異。'],
+ ['設計健康促進方案的合理步驟是？',['先執行再評估需求','評估需求→設計→執行→評價','只做評價','隨機進行'],1,'需求評估先於設計、執行、評價。'],
+ ['社區組織理論的核心是？',['由上而下命令','動員社區成員共同界定問題並行動','只靠專家','只靠經費'],1,'社區組織強調社區成員參與。'],
+ ['創新擴散中最早採用新行為的一群稱為？',['落後者','創新者/早期採用者','多數','旁觀者'],1,'創新者與早期採用者最先採納。'],
+ ['傳播理論在公衛的用途是？',['計算死亡率','設計有效的健康訊息與管道','發放疫苗','管理財務'],1,'傳播理論協助設計健康訊息。'],
+ ['以健康公平為導向的方案應優先？',['服務最容易接觸的人','縮小弱勢族群可避免的健康差距','追求最低成本','擴大醫院'],1,'優先縮小弱勢族群差距。'],
+ ['社區健康改變成功的關鍵之一是？',['忽略在地脈絡','選對理論並讓社區參與','只發傳單','只靠法律'],1,'選對理論＋社區參與是關鍵。']
+],
+ch27:[
+ ['災難管理的四階段是？',['評估、政策、確保、復健','減災、整備、應變、復原','初、次、三段、康復','結構、過程、結果、回饋'],1,'減災→整備→應變→復原。'],
+ ['「減災 (mitigation)」屬於哪個時機？',['事件當下','事後','事前降低風險與脆弱度','無關時機'],2,'減災是事前降低風險。'],
+ ['安排演練、應變計畫與物資屬於？',['減災','整備 (preparedness)','應變','復原'],1,'整備是事前的計畫與資源預備。'],
+ ['事件當下的緊急醫療與快速需求評估屬於？',['減災','整備','應變 (response)','復原'],2,'應變是事發當下的處置。'],
+ ['災後長期健康追蹤（如健康登錄）屬於？',['減災','整備','應變','復原 (recovery)'],3,'復原含事後長期健康追蹤。'],
+ ['世貿中心健康登錄追蹤了什麼？',['交通流量','倖存者與救難者的長期健康（PTSD、呼吸道等）','房價','天氣'],1,'追蹤 9/11 受影響者的長期身心健康。'],
+ ['描述性災難流行病學的內容是？',['檢驗因果','以時間、地點、人描述衝擊','計算利潤','設計疫苗'],1,'描述性用時間地點人刻畫衝擊。'],
+ ['快速需求評估 (rapid needs assessment) 的目的是？',['長期研究','災後迅速評估受災族群的健康與資源需求','制定稅率','建醫院'],1,'快速掌握受災族群需求以分配資源。'],
+ ['分析性災難流行病學著重？',['描述現象','檢驗暴露與健康效應的關聯','發傳單','收費'],1,'分析性探討暴露與健康的關聯。'],
+ ['災難流行病學整體的價值在於？',['增加災難','量化衝擊並指引因應與資源','美化數據','取代救災'],1,'量化衝擊、指引資源與因應。']
+],
+ch28:[
+ ['Donabedian 品質架構的三面向是？',['減災、整備、應變','結構、過程、結果','評估、政策、確保','安全、有效、公平'],1,'structure、process、outcome。'],
+ ['「結構 (structure)」指的是？',['照護的最終健康影響','提供照護的物力與人力資源','醫療行為流程','病人滿意度'],1,'結構＝設備與人員等資源。'],
+ ['「過程 (process)」指的是？',['資源','照護實際如何執行（醫療行為/流程）','最終結果','費用'],1,'過程＝照護如何被執行。'],
+ ['「結果 (outcome)」指的是？',['設備數量','照護對健康的最終影響','排班表','建築'],1,'結果＝對健康的最終影響。'],
+ ['IOM 六大品質目標不包含？',['安全','有效','以病人為中心','最大利潤'],3,'六大目標是安全、有效、病人中心、及時、有效率、公平。'],
+ ['三重目標 (Triple Aim) 包含？',['照護體驗、族群健康、成本','結構、過程、結果','減災、整備、應變','評估、政策、確保'],0,'Triple Aim＝體驗、族群健康、成本。'],
+ ['要診斷品質問題，Donabedian 建議？',['只看結果','分別檢視結構、過程、結果','只看成本','只問病人'],1,'從三面向系統性檢視。'],
+ ['「以病人為中心 (patient-centered)」屬於？',['三重目標','IOM 六大品質目標之一','Donabedian 結構','災難階段'],1,'是 IOM 六大目標之一。'],
+ ['品質改善 (QI) 的特徵是？',['一次性稽核','以資料驅動、持續改善流程與結果','只靠直覺','只看財務'],1,'QI 是資料驅動的持續改善。'],
+ ['同時兼顧體驗、族群健康與成本，是哪個概念？',['Donabedian','三重目標 Triple Aim','One Health','警察權'],1,'Triple Aim 兼顧三者。']
+],
+ch29:[
+ ['「需要 (need)」與「需求 (demand)」的差別是？',['完全相同','需要＝專業判定應獲得；需求＝實際尋求/購買','需求較專業','需要較昂貴'],1,'need 是專業判定，demand 是實際尋求。'],
+ ['Medicare 主要服務對象是？',['低收入者','老年人與部分身心障礙者','兒童','外國人'],1,'Medicare 主要給老年/身障（聯邦）。'],
+ ['Medicaid 主要服務對象是？',['老年人','低收入族群（聯邦與州合辦）','軍人','醫師'],1,'Medicaid 給低收入者，聯邦與州合辦。'],
+ ['第三方給付者 (third-party payer) 指？',['病人自己','由保險等第三方支付醫療費用','醫師','藥廠'],1,'由保險等第三方付費。'],
+ ['國際比較在健康政策的用途是？',['美化數據','以他國體系對照本國成本與成效','增加費用','取代研究'],1,'用國際比較檢視成本效益。'],
+ ['可近性 (access) 指的是？',['醫院美觀','民眾能否及時取得所需照護','藥價','醫師薪資'],1,'access＝能否及時取得照護。'],
+ ['健康政策影響的面向包含？',['資源分配、可近性與品質','只有藥價','只有醫院建築','只有薪水'],0,'政策影響分配、可近性與品質。'],
+ ['Medicare 與 Medicaid 最常被混淆，關鍵區別在？',['費用','服務對象（老年/身障 vs 低收入）','顏色','名稱長度'],1,'兩者對象不同。'],
+ ['「需要」大於「需求」可能反映？',['過度醫療','應獲得照護者未實際尋求（可近性/認知落差）','醫師太多','疫苗太貴'],1,'need>demand 反映未被滿足的照護需要。'],
+ ['美國醫療的常見特徵之一是？',['支出低成效高','支出高但部分成效未必領先','沒有保險制度','完全公營'],1,'美國醫療支出高、成效不一，凸顯比較價值。']
+],
+ch30:[
+ ['One Health 的核心概念是？',['只重人類健康','人、動物與環境健康彼此相依','只重動物','只重環境'],1,'One Health 強調三者相依。'],
+ ['One Health 特別適合因應？',['單一器官疾病','新興人畜共通傳染病與環境變遷','骨折','近視'],1,'跨物種/環境的新興威脅。'],
+ ['人畜共通傳染病 (zoonoses) 是指？',['只在人之間','在動物與人之間傳播的疾病','只在動物之間','非傳染病'],1,'在動物與人之間傳播。'],
+ ['本書四大領域整合指的是？',['只有臨床','流病、生統、預防醫學與公衛的整合','只有公衛','只有統計'],1,'四領域整合成完整健康行動。'],
+ ['One Health 需要何種協作？',['單一部門','衛生、農業、環境等跨部門協作','只靠醫院','只靠個人'],1,'需跨部門協作。'],
+ ['「one planet, one health」呼應？',['地方封閉','全球化下健康威脅跨越國界與物種','僅國內事務','僅個人健康'],1,'全球化下威脅跨國界與物種。'],
+ ['整合流病與生統的目的是？',['增加難度','從證據走到有效行動','取代臨床','美化報告'],1,'整合是為了把證據轉為行動。'],
+ ['環境變遷對健康的影響是 One Health 關注的原因是？',['與健康無關','氣候/生態變化衝擊人與動物健康','只影響經濟','只影響動物'],1,'環境變遷同時衝擊人與動物健康。'],
+ ['One Health 取向相對於各自為政的優勢是？',['較慢','能整合跨領域資源因應複雜威脅','較貴無效','忽略證據'],1,'整合資源更能因應複雜威脅。'],
+ ['綜觀全書，健康行動的完整視角是？',['只看個人','從個人到族群、從臨床到政策的連貫','只看醫院','只看實驗室'],1,'涵蓋個人到族群、臨床到政策。']
+]
+};
+
+function renderChapter(key){
+  const c=CH[key],quiz=QUIZ[key],L=['A','B','C','D','E'];
+  const termsHtml=c.terms.map(t=>`<div class="term"><div class="t-name">${t[0]} <span class="en">${t[1]}</span></div><div class="t-def">${t[2]}</div></div>`).join('');
+  const goalsHtml=c.goals.map(g=>`<li>${g}</li>`).join('');
+  const exHtml=c.examples.map(e=>`<div class="ex"><b>📌 ${e[0]}</b><br>${e[1]}</div>`).join('');
+  const quizHtml=quiz.map((q,i)=>{
+    const choices=q[1].map((ch,j)=>`<label class="choice" data-correct="${j===q[2]}" onclick="answer(this,'${key}',${i})"><span class="k">${L[j]}</span>${ch}</label>`).join('');
+    return `<div class="qitem" data-q="${i}"><div class="qq"><span class="n">${i+1}</span>${q[0]}</div>${choices}
+      <div class="explain"><b>✔ 正解：${L[q[2]]}。</b> ${q[3]}</div></div>`;
+  }).join('');
+  document.getElementById('view-'+key).innerHTML=`
+   <div class="card handout">
+     <button class="print-btn no-print" onclick="printOne('${key}')">🖨 匯出本章講義 PDF</button>
+     <h2 class="title">第 ${c.num} 章　${c.title}</h2>
+     <div class="sub"><span class="en">${c.en}</span> <span class="pg">${c.pages}</span></div>
+     <div class="goal-box"><b>🎯 學習目標 Learning Objectives</b><ul class="clean">${goalsHtml}</ul></div>
+     <h3 class="sec"><span class="em">📖</span>重要名詞 Key Terms</h3>${termsHtml}
+     <h3 class="sec"><span class="em">🕐</span>應用時機 When to Apply</h3><div class="when">${c.when}</div>
+     <h3 class="sec"><span class="em">💡</span>書中例子 Examples from the Book</h3>${exHtml}
+   </div>
+   <div class="card quiz-card no-print">
+     <div class="quiz-head"><h3 class="sec" style="border:0;margin:0"><span class="em">📝</span>理解測驗（10 題）Self-Test</h3>
+       <div class="score" id="score-${key}">作答進度 0 / 10　得分 0</div></div>
+     <p class="sub">點選答案即可立即看到對錯與詳解。</p>${quizHtml}
+   </div>`;
+}
+Object.keys(CH).forEach(renderChapter);
+
+const qs={};
+function answer(el,key,qi){
+  const item=el.closest('.qitem'); if(item.dataset.done) return; item.dataset.done='1';
+  const correct=el.dataset.correct==='true';
+  item.querySelectorAll('.choice').forEach(ch=>{ch.classList.add('disabled'); if(ch.dataset.correct==='true')ch.classList.add('correct');});
+  if(!correct)el.classList.add('wrong');
+  item.querySelector('.explain').classList.add('show');
+  qs[key]=qs[key]||{done:0,score:0}; qs[key].done++; if(correct)qs[key].score++;
+  document.getElementById('score-'+key).textContent=`作答進度 ${qs[key].done} / 10　得分 ${qs[key].score}`;
+}
+function printAll(){document.body.classList.add('printing-all');window.print();}
+function printOne(key){document.body.classList.add('printing-one');document.getElementById('view-'+key).classList.add('print-target');window.print();}
+window.addEventListener('afterprint',()=>{document.body.classList.remove('printing-all','printing-one');
+  document.querySelectorAll('.print-target').forEach(e=>e.classList.remove('print-target'));});
+</script>
+<script src="assets/selectors.js"></script>
+</body>
+</html>
