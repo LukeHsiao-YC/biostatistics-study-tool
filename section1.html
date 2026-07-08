@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>流行病學研究設計助手 — Jekel's Epidemiology (Section 1)</title>
+<style>
+  :root{
+    --bg:#f4f6fb; --card:#ffffff; --ink:#1f2733; --muted:#5b6675;
+    --brand:#0d6e6e; --brand2:#159a9a; --accent:#c2571a; --accent2:#fdf0e6;
+    --warn:#d97706; --bad:#c23b3b; --good:#128a5a;
+    --line:#e2e7f0; --chip:#e7f4f4; --shadow:0 2px 10px rgba(30,50,90,.07);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",Segoe UI,system-ui,sans-serif;
+       background:var(--bg);color:var(--ink);line-height:1.7;-webkit-font-smoothing:antialiased}
+  header.top{background:linear-gradient(120deg,#0b5757,#159a9a);color:#fff;padding:26px 20px 20px}
+  header.top h1{margin:0 0 4px;font-size:22px;letter-spacing:.5px}
+  header.top p{margin:0;opacity:.9;font-size:13.5px}
+  header.top a.home{color:#fff;text-decoration:none;font-size:13px;opacity:.9;border:1px solid rgba(255,255,255,.5);padding:3px 10px;border-radius:8px;display:inline-block;margin-bottom:10px}
+  header.top a.home:hover{background:rgba(255,255,255,.15)}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 16px}
+  nav.tabs{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);
+           display:flex;flex-wrap:wrap;gap:4px;padding:8px 10px;box-shadow:var(--shadow)}
+  nav.tabs button{border:0;background:transparent;color:var(--muted);font-size:14px;font-weight:600;
+        padding:9px 13px;border-radius:9px;cursor:pointer;font-family:inherit;transition:.15s}
+  nav.tabs button:hover{background:var(--chip);color:var(--ink)}
+  nav.tabs button.active{background:var(--brand);color:#fff}
+  main{padding:22px 0 60px}
+  section.view{display:none;animation:fade .25s ease}
+  section.view.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;margin:0 0 18px;box-shadow:var(--shadow)}
+  h2.title{font-size:20px;margin:0 0 4px;color:var(--brand)}
+  .sub{color:var(--muted);font-size:13.5px;margin:0 0 16px}
+  .pill{display:inline-block;background:var(--chip);color:var(--brand);border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600;margin-left:6px}
+  .en{color:var(--brand2);font-style:italic;font-weight:600}
+  .pg{color:var(--accent);font-weight:700;font-size:12.5px;white-space:nowrap}
+
+  .q-block{border:1px solid var(--line);border-radius:12px;padding:16px 18px;background:#fbfcfe;margin-bottom:14px}
+  .q-block h3{margin:0 0 4px;font-size:15.5px}
+  .q-block .hint{font-size:12.5px;color:var(--muted);margin:0 0 12px}
+  .opts{display:flex;flex-wrap:wrap;gap:9px}
+  .opts button{border:1.5px solid var(--line);background:#fff;padding:9px 14px;border-radius:10px;cursor:pointer;
+        font-family:inherit;font-size:13.5px;color:var(--ink);transition:.12s;text-align:left}
+  .opts button:hover{border-color:var(--brand2);background:#eefafa}
+  .opts button.sel{border-color:var(--brand);background:var(--brand);color:#fff;box-shadow:0 2px 8px rgba(13,110,110,.3)}
+  .opts button small{display:block;font-size:11.5px;opacity:.8;font-weight:400;margin-top:2px}
+  .opts button.sel small{opacity:.9}
+  .result{margin-top:6px;border-radius:14px;border:2px solid var(--brand2);background:var(--chip);padding:20px}
+  .result.empty{border-color:var(--line);background:#fafbfd;color:var(--muted);text-align:center}
+  .result h3{margin:0 0 8px;color:var(--brand);font-size:18px}
+  .result .rec{font-size:17px;font-weight:700;color:var(--ink);margin:6px 0}
+  .result .alt{font-size:14px;color:var(--muted);margin:4px 0}
+  .result .why{background:#fff;border-radius:10px;padding:12px 14px;margin-top:12px;font-size:13.5px;border:1px solid #cde8e8}
+  .reset{background:#fff;border:1px solid var(--line);color:var(--muted);padding:7px 14px;border-radius:9px;cursor:pointer;font-family:inherit;font-size:13px;margin-top:14px}
+  .reset:hover{border-color:var(--bad);color:var(--bad)}
+
+  .goal-box{background:linear-gradient(120deg,#e7f4f4,#fdf3ec);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:12px 16px;margin:0 0 16px}
+  .goal-box b{color:var(--brand)}
+  h3.sec{font-size:16px;margin:20px 0 8px;padding-bottom:5px;border-bottom:2px solid var(--chip);color:var(--ink)}
+  h3.sec .em{font-size:18px;margin-right:6px}
+  .term{border:1px solid var(--line);border-radius:10px;padding:11px 14px;margin:8px 0;background:#fbfcfe}
+  .term .t-name{font-weight:700;font-size:14.5px}
+  .term .t-def{font-size:13.5px;color:#38424f;margin-top:2px}
+  ul.clean{margin:6px 0;padding-left:20px}
+  ul.clean li{margin:5px 0;font-size:14px}
+  .ex{background:#fdf3ec;border:1px solid #f2ddc7;border-radius:10px;padding:12px 15px;margin:8px 0;font-size:13.8px}
+  .ex b{color:var(--accent)}
+  .when{background:#e9f6f2;border:1px solid #cde8dd;border-radius:10px;padding:12px 15px;font-size:13.8px}
+  table.ref{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+  table.ref th,table.ref td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+  table.ref th{background:var(--chip);color:var(--brand)}
+  .print-btn{background:var(--brand);color:#fff;border:0;padding:8px 15px;border-radius:9px;cursor:pointer;font-family:inherit;font-size:13px;float:right}
+  .print-btn:hover{background:#0a5252}
+
+  .quiz-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+  .score{font-weight:700;color:var(--brand);font-size:14px}
+  .qitem{border:1px solid var(--line);border-radius:12px;padding:15px 17px;margin:12px 0;background:#fff}
+  .qitem .qq{font-weight:600;font-size:14.5px;margin-bottom:10px}
+  .qitem .qq span.n{display:inline-block;background:var(--brand);color:#fff;border-radius:6px;padding:1px 8px;font-size:12.5px;margin-right:8px}
+  .choice{display:block;border:1.5px solid var(--line);border-radius:9px;padding:9px 13px;margin:6px 0;cursor:pointer;font-size:13.8px;transition:.12s;background:#fdfdfe}
+  .choice:hover{border-color:var(--brand2);background:#f2fafa}
+  .choice.correct{border-color:var(--good);background:#e9f8f0}
+  .choice.wrong{border-color:var(--bad);background:#fbecec}
+  .choice.disabled{cursor:default;pointer-events:none;opacity:.85}
+  .choice .k{font-weight:700;margin-right:7px;color:var(--brand)}
+  .explain{display:none;margin-top:9px;padding:10px 13px;border-radius:9px;background:#eef6f6;font-size:13px;border-left:3px solid var(--brand2)}
+  .explain.show{display:block}
+  .explain b{color:var(--good)}
+  footer{text-align:center;color:var(--muted);font-size:12.5px;padding:20px}
+  #pdfAll{position:fixed;right:18px;bottom:18px;z-index:50;background:var(--accent);color:#fff;border:0;
+      padding:12px 18px;border-radius:999px;cursor:pointer;font-family:inherit;font-size:14px;font-weight:700;
+      box-shadow:0 4px 16px rgba(194,87,26,.4)}
+  #pdfAll:hover{background:#a8481450}
+  @media(max-width:640px){.grid2{grid-template-columns:1fr}}
+  @media print{
+    header.top,nav.tabs,.reset,footer,.no-print,#pdfAll{display:none!important}
+    body{background:#fff}
+    .card{box-shadow:none;border:1px solid #ccc;break-inside:avoid}
+    body.printing-all .view{display:block!important;break-before:page}
+    body.printing-all #view-ch1{break-before:auto}
+    body.printing-all #view-design,body.printing-all #view-measure{display:none!important}
+    body.printing-all .quiz-card{display:none!important}
+    body.printing-one .view{display:none!important}
+    body.printing-one .view.print-target{display:block!important}
+    body.printing-one .quiz-card{display:none!important}
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="home" href="index.html">🏠 回首頁</a>
+    <h1>流行病學研究設計助手 <span style="font-size:13px;opacity:.85">Epidemiology Study Companion</span></h1>
+    <p>依據《Jekel's Epidemiology, Biostatistics, Preventive Medicine》Section 1（第 1–7 章）· 研究設計選擇器 + 測量指標選擇器 + 白話講義 + 測驗</p>
+  </div>
+</header>
+
+<nav class="tabs wrap" id="tabs">
+  <button data-t="design" class="active">🎯 研究設計選擇器</button>
+  <button data-t="measure">📏 測量指標選擇器</button>
+  <button data-t="ch1">第1章 基本概念</button>
+  <button data-t="ch2">第2章 資料測量</button>
+  <button data-t="ch3">第3章 監測與疫調</button>
+  <button data-t="ch4">第4章 危險因子與因果</button>
+  <button data-t="ch5">第5章 研究設計</button>
+  <button data-t="ch6">第6章 風險效益</button>
+  <button data-t="ch7">第7章 資料品質</button>
+</nav>
+
+<main class="wrap">
+
+<!-- ============ STUDY DESIGN SELECTOR ============ -->
+<section id="view-design" class="view active">
+  <div class="card">
+    <h2 class="title">🎯 研究設計選擇器 <span class="pill">Choosing a Research Design</span></h2>
+    <p class="sub">依你的研究目的與可行性，依照課本第 5 章的分類，建議適當的流行病學研究設計。每個名詞附英文與白話說明。</p>
+    <div id="d-wiz"></div>
+    <div id="d-rec" class="result empty">👆 從上方開始作答，我會即時建議適當的研究設計。</div>
+    <button class="reset" onclick="resetD()">↺ 重新選擇</button>
+  </div>
+  <div class="card">
+    <h3 class="sec"><span class="em">🗺️</span>研究設計速查表 <span class="pg">課本 Ch5, p.68–75</span></h3>
+    <table class="ref">
+      <tr><th>類型</th><th>設計</th><th>特點 / 適用</th></tr>
+      <tr><td>觀察·描述</td><td>病例報告/系列 Case report / series</td><td>少數個案描述；產生假設，無對照組</td></tr>
+      <tr><td>觀察·描述</td><td>橫斷調查 Cross-sectional survey</td><td>同一時間點測暴露與疾病；得盛行率；因果方向不明</td></tr>
+      <tr><td>觀察·描述</td><td>生態研究 Ecologic study</td><td>用「群體」而非個人資料；有生態謬誤 (ecologic fallacy) 風險</td></tr>
+      <tr><td>觀察·分析</td><td>世代研究 Cohort study</td><td>從暴露→追蹤→疾病；可得發生率與 RR；適合「罕見暴露」</td></tr>
+      <tr><td>觀察·分析</td><td>病例對照 Case-control study</td><td>從疾病(病例)→回推暴露；得 OR；適合「罕見疾病」、省時省錢</td></tr>
+      <tr><td>實驗</td><td>隨機對照臨床試驗 RCT</td><td>主動隨機分配介入；因果證據最強</td></tr>
+      <tr><td>實驗</td><td>田野試驗 Field trial</td><td>在社區/健康人群中測試預防措施</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ============ MEASURE SELECTOR ============ -->
+<section id="view-measure" class="view">
+  <div class="card">
+    <h2 class="title">📏 測量指標選擇器 <span class="pill">Choosing an Epidemiologic Measure</span></h2>
+    <p class="sub">你想「量化什麼」？依照課本第 2、6、7 章，建議該用哪個流行病學指標並說明白話意義與公式。</p>
+    <div id="m-wiz"></div>
+    <div id="m-rec" class="result empty">👆 從上方開始作答，我會即時建議適當的測量指標。</div>
+    <button class="reset" onclick="resetM()">↺ 重新選擇</button>
+  </div>
+  <div class="card">
+    <h3 class="sec"><span class="em">🗺️</span>常用指標速查表 <span class="pg">Ch2 p.17–27 · Ch6 p.84–92 · Ch7 p.101–107</span></h3>
+    <table class="ref">
+      <tr><th>想知道</th><th>指標</th><th>白話 / 公式</th></tr>
+      <tr><td>新發生的疾病量</td><td>發生率 Incidence（累積發生率／發生密度）</td><td>一段期間內「新」病例 ÷ 風險人口（或人時）</td></tr>
+      <tr><td>某時點疾病負擔</td><td>盛行率 Prevalence</td><td>某時點所有（新+舊）病例 ÷ 總人口</td></tr>
+      <tr><td>兩組風險相對比較（世代/RCT）</td><td>相對風險 Relative Risk (RR)</td><td>暴露組風險 ÷ 未暴露組風險</td></tr>
+      <tr><td>兩組相對比較（病例對照）</td><td>勝算比 Odds Ratio (OR)</td><td>ad ÷ bc（2×2 表）；罕見病時近似 RR</td></tr>
+      <tr><td>暴露造成的絕對超額</td><td>歸因風險 Attributable Risk (AR)</td><td>暴露組風險 − 未暴露組風險</td></tr>
+      <tr><td>族群層級可預防比例</td><td>族群歸因風險 PAR / PAR%</td><td>移除暴露後族群可減少的疾病比例</td></tr>
+      <tr><td>介入的效益</td><td>ARR / RRR / NNT</td><td>ARR=風險差；NNT = 1 ÷ ARR</td></tr>
+      <tr><td>檢驗抓得準不準</td><td>敏感度 / 特異度 / PPV / NPV / LR</td><td>Se=病人中驗陽比例；Sp=健康中驗陰比例</td></tr>
+      <tr><td>兩位判讀者一致性</td><td>Kappa (κ)</td><td>排除運氣後的一致程度</td></tr>
+    </table>
+  </div>
+</section>
+
+<section id="view-ch1" class="view"></section>
+<section id="view-ch2" class="view"></section>
+<section id="view-ch3" class="view"></section>
+<section id="view-ch4" class="view"></section>
+<section id="view-ch5" class="view"></section>
+<section id="view-ch6" class="view"></section>
+<section id="view-ch7" class="view"></section>
+
+</main>
+
+<button id="pdfAll" class="no-print" onclick="printAll()">📄 匯出全部講義為 PDF</button>
+<footer>
+  內容整理自《Jekel's Epidemiology, Biostatistics, Preventive Medicine and Public Health》Section 1 Epidemiology（第 1–7 章）。<br>
+  頁碼為課本內文頁碼。本工具為學習輔助，研究/臨床決策請以原著與專業意見為準。
+</footer>
+
+<script>
+/* ===== TABS ===== */
+document.getElementById('tabs').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return;
+  document.querySelectorAll('#tabs button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+b.dataset.t).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+/* ============ DESIGN SELECTOR ============ */
+const dq=[
+ {id:'purpose',t:'Q1. 你的研究目的主要是？',h:'先確定你要「描述現況」還是「檢驗因果」。',
+  o:[['describe','描述現況 / 產生假設','看看疾病有多少、分布如何，或先找線索'],
+     ['test','檢驗因果假設','想證明「某暴露是否造成某疾病」']]},
+ {id:'assign',t:'Q2. 你能「主動分配」暴露或介入給受試者嗎？',h:'能主動隨機分配＝實驗性；只能觀察既有情形＝觀察性。',
+  o:[['exp','能（可隨機分配介入）','由研究者決定誰接受介入'],
+     ['obs','不能（只能觀察）','暴露是受試者本來就有的（如吸菸）']]},
+ {id:'level',t:'Q3. 你的資料是「個人層級」還是「群體層級」？',h:'個人＝每個人的暴露與疾病都有；群體＝只有整體平均/比率。',
+  o:[['indiv','個人層級 Individual','每位受試者的資料'],
+     ['group','群體層級 Ecologic','只有國家/地區的整體數據']]},
+ {id:'dir',t:'Q4. 你打算怎麼追蹤時間方向？',h:'這決定世代 vs 病例對照 vs 橫斷。',
+  o:[['expfirst','從「暴露」開始，往後追是否發病','先分暴露/未暴露，追蹤結果 → 世代'],
+     ['disfirst','從「疾病」開始，往回問暴露','先找病例與對照，回溯暴露 → 病例對照'],
+     ['same','同一時間點同時測暴露與疾病','一次調查 → 橫斷']]},
+ {id:'rare',t:'（補充）你的疾病或暴露屬於哪種情況？',h:'幫助在世代/病例對照間微調。',
+  o:[['rd','罕見「疾病」','病例對照較有效率'],
+     ['re','罕見「暴露」','世代較有效率'],
+     ['na','都不算罕見 / 不確定','依上題方向即可']]}
+];
+const dstate={};
+function renderWiz(container,defs,onchange){
+  const el=document.getElementById(container);
+  el.innerHTML=defs.map(q=>`<div class="q-block" data-qid="${q.id}"><h3>${q.t}</h3><p class="hint">${q.h}</p>
+    <div class="opts">${q.o.map(o=>`<button data-v="${o[0]}">${o[1]}<small>${o[2]}</small></button>`).join('')}</div></div>`).join('');
+  el.querySelectorAll('.q-block').forEach(qb=>{
+    qb.querySelector('.opts').addEventListener('click',e=>{
+      const b=e.target.closest('button'); if(!b)return;
+      qb.querySelectorAll('button').forEach(x=>x.classList.remove('sel'));
+      b.classList.add('sel'); onchange(qb.dataset.qid,b.dataset.v);
+    });
+  });
+}
+function showQ(container,qid,on){
+  const q=document.querySelector(`#${container} [data-qid="${qid}"]`); if(q)q.style.display=on?'':'none';
+}
+function setRec(elid,title,rec,alt,why){
+  const el=document.getElementById(elid);el.className='result';
+  el.innerHTML=`<h3>✅ ${title}</h3><div class="rec">${rec}</div>${alt?`<div class="alt">${alt}</div>`:''}<div class="why">${why}</div>`;
+}
+renderWiz('d-wiz',dq,(id,v)=>{dstate[id]=v;dVis();dRec();});
+function dVis(){
+  const s=dstate;
+  showQ('d-wiz','assign', s.purpose==='test');
+  showQ('d-wiz','level', s.purpose==='describe' || (s.purpose==='test'&&s.assign==='obs'));
+  const obsIndiv = (s.purpose==='describe'&&s.level==='indiv') || (s.purpose==='test'&&s.assign==='obs'&&s.level==='indiv');
+  showQ('d-wiz','dir', obsIndiv);
+  showQ('d-wiz','rare', obsIndiv && (s.dir==='expfirst'||s.dir==='disfirst'));
+}
+function dRec(){
+  const s=dstate; if(!s.purpose) return;
+  if(s.purpose==='test'){
+    if(!s.assign) return;
+    if(s.assign==='exp') return setRec('d-rec','實驗性設計（因果證據最強）',
+      '隨機對照試驗 Randomized Controlled Trial (RCT)',
+      '若在社區/健康人群測預防措施 → 田野試驗 Field trial。',
+      '你能主動隨機分配介入，這是判斷因果最有力的設計；隨機化讓兩組在已知與未知因子上可比。 <span class="pg">Ch5 p.73–75</span>');
+  }
+  if(!s.level) return;
+  if(s.level==='group') return setRec('d-rec','生態研究',
+    '生態研究 Ecologic Study（橫斷或縱貫）',null,
+    '只用群體層級資料（如各國平均攝取量 vs 疾病率）。快速、便宜、常用於產生假設，但小心生態謬誤 (ecologic fallacy)——群體關係不等於個人關係。 <span class="pg">Ch5 p.70</span>');
+  // individual level
+  if(s.purpose==='describe' && !s.dir)
+    return setRec('d-rec','描述性/產生假設',
+      '橫斷調查 Cross-sectional Survey（或病例系列/質性研究）',null,
+      '個人層級、想描述現況或找線索：橫斷調查可得盛行率；少數個案用病例報告/系列；深入探索用質性研究。 <span class="pg">Ch5 p.69</span>');
+  if(!s.dir) return;
+  if(s.dir==='same') return setRec('d-rec','橫斷研究',
+    '橫斷研究 Cross-sectional Study',null,
+    '同一時間點同時測「暴露」與「疾病」，可得盛行率。缺點：無法判斷誰先誰後（因果方向不明）。 <span class="pg">Ch5 p.69–70</span>');
+  if(s.dir==='expfirst'){
+    const t=s.rare==='rd'?'（提醒：疾病罕見時世代較不划算，可考慮病例對照）':'';
+    return setRec('d-rec','世代研究',
+      '世代研究 Cohort Study（前瞻或回溯）',
+      '適合「罕見暴露」與需要發生率、時序性的研究；可直接算相對風險 RR。'+t,
+      '先依暴露/未暴露分組，往後追蹤誰發病。優點：能確立時序、算發生率與 RR；缺點：耗時、費用高，罕見病需極大樣本。 <span class="pg">Ch5 p.70–72</span>');
+  }
+  if(s.dir==='disfirst'){
+    const t=s.rare==='re'?'（提醒：暴露罕見時病例對照較不利，可考慮世代）':'';
+    return setRec('d-rec','病例對照研究',
+      '病例對照研究 Case-Control Study',
+      '特別適合「罕見疾病」、省時省錢；結果以勝算比 OR 表示。'+t,
+      '先找病例與對照，回溯比較暴露史。優點：快、便宜、適合罕見病與長潛伏期疾病；缺點：易有回憶偏差 (recall bias)、不能直接算發生率。經典例：DES 與陰道腺癌。 <span class="pg">Ch5 p.72–73</span>');
+  }
+}
+function resetD(){for(const k in dstate)delete dstate[k];
+  document.querySelectorAll('#d-wiz button').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('d-rec').className='result empty';
+  document.getElementById('d-rec').innerHTML='👆 從上方開始作答，我會即時建議適當的研究設計。';dVis();}
+
+/* ============ MEASURE SELECTOR ============ */
+const mq=[
+ {id:'goal',t:'Q1. 你想「量化」什麼？',h:'先選大方向。',
+  o:[['freq','疾病發生的頻率','有多少人得病'],
+     ['compare','比較兩組的風險','暴露 vs 未暴露誰風險高'],
+     ['benefit','介入/治療的效益','治療能減少多少壞結果'],
+     ['test','診斷檢驗的表現','這個檢驗準不準'],
+     ['agree','兩位判讀者的一致性','兩人判讀有多一致']]},
+ {id:'freqtype',t:'Q2. 頻率：你關心「新發生」還是「當下總量」？',h:'',
+  o:[['new','新發生的病例（有追蹤時間）','一段期間內新診斷'],
+     ['exist','某時點所有病例（新+舊）','此刻有多少人有病']]},
+ {id:'comptype',t:'Q2. 比較：你要哪一種比較？',h:'',
+  o:[['rel','相對比較（幾倍）','風險是幾倍'],
+     ['abs','絕對差異（差多少）','風險相差多少個百分點'],
+     ['pop','族群層級可預防比例','整個族群能少掉多少疾病']]},
+ {id:'design',t:'Q3. 相對比較：你的研究設計是？',h:'設計決定用 RR 還是 OR。',
+  o:[['cohort','世代 / RCT','從暴露追到疾病'],
+     ['cc','病例對照','從疾病回推暴露']]},
+ {id:'testtype',t:'Q2. 檢驗表現：你最在意哪一面？',h:'',
+  o:[['se','抓出病人／排除疾病的能力','敏感度 / 特異度'],
+     ['ppv','驗陽性後真的有病的機率','預測值 PPV / NPV（受盛行率影響）'],
+     ['lr','不受盛行率影響的整體效能','概似比 LR / ROC 曲線']]}
+];
+const mstate={};
+renderWiz('m-wiz',mq,(id,v)=>{mstate[id]=v;mVis();mRec();});
+function mVis(){
+  const s=mstate;
+  showQ('m-wiz','freqtype', s.goal==='freq');
+  showQ('m-wiz','comptype', s.goal==='compare');
+  showQ('m-wiz','design', s.goal==='compare'&&s.comptype==='rel');
+  showQ('m-wiz','testtype', s.goal==='test');
+}
+function mRec(){
+  const s=mstate; if(!s.goal) return;
+  if(s.goal==='freq'){
+    if(!s.freqtype) return;
+    if(s.freqtype==='new') return setRec('m-rec','發生（新病例）',
+      '發生率 Incidence（累積發生率 / 發生密度 Incidence density）',
+      '有人時 (person-time) 資料時用發生密度（率）。',
+      '一段期間內「新」病例數 ÷ 期初風險人口（或人時）。反映「變成病人的速度」，是研究病因與風險的核心。 <span class="pg">Ch2 p.17, 23</span>');
+    return setRec('m-rec','盛行（當下總量）',
+      '盛行率 Prevalence（點盛行率 / 期間盛行率）',null,
+      '某時點所有（新+舊）病例 ÷ 總人口。反映「疾病負擔」，適合規劃醫療資源。關係式：盛行率 ≈ 發生率 × 病程。 <span class="pg">Ch2 p.17–19</span>');
+  }
+  if(s.goal==='compare'){
+    if(!s.comptype) return;
+    if(s.comptype==='rel'){
+      if(!s.design) return;
+      if(s.design==='cohort') return setRec('m-rec','相對比較（世代/RCT）',
+        '相對風險 Relative Risk / Risk Ratio (RR)',
+        'RR = 暴露組風險 ÷ 未暴露組風險。',
+        'RR=1 代表無差異；RR>1 代表暴露組風險較高。需要能直接算「風險」，故用於世代/RCT。 <span class="pg">Ch6 p.85</span>');
+      return setRec('m-rec','相對比較（病例對照）',
+        '勝算比 Odds Ratio (OR)',
+        'OR = ad ÷ bc（2×2 表）。',
+        '病例對照研究無法直接算風險，改用勝算比；當疾病罕見時，OR 近似 RR。 <span class="pg">Ch6 p.86</span>');
+    }
+    if(s.comptype==='abs') return setRec('m-rec','絕對差異',
+      '歸因風險 Attributable Risk (AR) / 風險差 Risk difference',null,
+      'AR = 暴露組風險 − 未暴露組風險，代表「暴露多造成的絕對超額風險」。用於評估暴露對個人的實際衝擊。 <span class="pg">Ch6 p.84, 87</span>');
+    return setRec('m-rec','族群層級',
+      '族群歸因風險 Population Attributable Risk (PAR / PAR%)',null,
+      '若移除該暴露，整個族群可減少多少疾病。同時取決於「風險比」與「暴露盛行率」——常見暴露即使 RR 不大，PAR 也可能很高。 <span class="pg">Ch6 p.88</span>');
+  }
+  if(s.goal==='benefit') return setRec('m-rec','介入效益',
+    'ARR（絕對風險下降）、RRR（相對風險下降）、NNT（益一需治數）',
+    'NNT = 1 ÷ ARR；越小代表越有效。',
+    'ARR＝對照組風險−治療組風險；RRR＝ARR÷對照組風險。NNT 表示「需治療幾人才能讓 1 人受益」。例：療法使 1/3 難治潰瘍癒合，ARR=0.333 → NNT=3。 <span class="pg">Ch6 p.90–92</span>');
+  if(s.goal==='test'){
+    if(!s.testtype) return;
+    if(s.testtype==='se') return setRec('m-rec','檢驗表現：抓病/排除',
+      '敏感度 Sensitivity / 特異度 Specificity',null,
+      '敏感度＝真的有病者中被驗出陽性的比例（高→適合篩檢、排除疾病）；特異度＝健康者中被驗出陰性的比例（高→適合確診）。 <span class="pg">Ch7 p.101</span>');
+    if(s.testtype==='ppv') return setRec('m-rec','檢驗表現：預測值',
+      '陽性預測值 PPV / 陰性預測值 NPV',null,
+      'PPV＝驗陽者中真的有病的比例，強烈受「盛行率」影響——盛行率低時 PPV 會偏低。 <span class="pg">Ch7 p.102</span>');
+    return setRec('m-rec','檢驗表現：整體效能',
+      '概似比 Likelihood Ratio (LR) / ROC 曲線',null,
+      'LR 由敏感度與特異度組成、不受盛行率影響，適合比較檢驗整體效能；ROC 曲線協助選最佳切點 (cutoff)。 <span class="pg">Ch7 p.103–105</span>');
+  }
+  if(s.goal==='agree') return setRec('m-rec','判讀一致性',
+    'Kappa (κ) 一致性檢定',null,
+    'Kappa 衡量「扣掉純靠運氣的一致」後，兩位觀察者真正的一致程度。0＝只和運氣一樣，1＝完全一致。 <span class="pg">Ch7 p.107</span>');
+}
+function resetM(){for(const k in mstate)delete mstate[k];
+  document.querySelectorAll('#m-wiz button').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('m-rec').className='result empty';
+  document.getElementById('m-rec').innerHTML='👆 從上方開始作答，我會即時建議適當的測量指標。';mVis();}
+dVis();mVis();
+
+/* ============ CHAPTER DATA ============ */
+const CH={
+ch1:{num:1,title:'基本流行病學概念與原理',en:'Basic Epidemiologic Concepts and Principles',pages:'p.2–14',
+ goals:[
+  '理解流行病學 (epidemiology) 是研究「疾病在人群中如何分布、為何分布」的科學。',
+  '認識疾病的自然史 (natural history) 與宿主-病原-環境-病媒的關係。',
+  '會用 BEINGS 模式盤點造成疾病的多重危險因子。',
+  '了解公共衛生介入可能帶來的非預期後果 (unintended consequences)。'],
+ terms:[
+  ['流行病學','Epidemiology','研究人群中健康與疾病的分布與決定因素的科學，是公共衛生的基礎。'],
+  ['自然史','Natural history of disease','疾病從易感、臨床前、臨床到結局的完整發展過程。'],
+  ['宿主-病原-環境','Host–Agent–Environment','疾病三角：疾病是三者互動的結果，加上病媒 (vector) 傳播。'],
+  ['危險因子','Risk factor','會增加疾病發生機率的特徵或暴露，未必是直接原因。'],
+  ['BEINGS 模式','BEINGS model','疾病危險因子的助記：Biologic 生物、Behavioral 行為、Environmental 環境、Immunologic 免疫、Nutritional 營養、Genetic 基因、Services/Social 醫療與社會因素。'],
+  ['危險因子協同作用','Synergism','多個因子共同作用時，效果大於各自相加。'],
+  ['非預期後果','Unintended consequences','解決一個公衛問題可能製造新問題（如疫苗改變免疫模式）。']],
+ when:'這是所有流行病學的地基。<b>當你要界定「一個健康問題的成因有哪些層面」時</b>，用宿主-病原-環境與 BEINGS 模式做系統性盤點，避免只想到單一原因。',
+ examples:[
+  ['疫苗與免疫模式改變','大規模疫苗接種雖降低疾病，但可能改變族群免疫模式，是公衛介入非預期後果的例子。 <span class="pg">p.7</span>'],
+  ['環境改造帶來新疾病','水壩建造改變了疾病分布（如血吸蟲病），說明改造環境的雙面性。 <span class="pg">p.9</span>'],
+  ['BEINGS 盤點多因子','以 BEINGS 逐字母檢視，可完整列出一種疾病的生物、行為、環境、免疫、營養、基因與社會服務等危險因子。 <span class="pg">p.5</span>']]},
+ch2:{num:2,title:'流行病學資料測量',en:'Epidemiologic Data Measurements',pages:'p.17–33',
+ goals:[
+  '分清楚發生率 (incidence) 與盛行率 (prevalence) 的定義與用途。',
+  '理解風險 (risk) 與率 (rate) 的差異，以及率的正確使用條件。',
+  '會用直接與間接標準化 (standardization) 校正年齡等結構差異。',
+  '認識母嬰健康常用的率（嬰兒死亡率等）。'],
+ terms:[
+  ['發生率','Incidence','一段期間內「新」病例數 ÷ 風險人口。反映變成病人的速度。'],
+  ['盛行率','Prevalence','某時點所有（新+舊）病例 ÷ 總人口。反映疾病負擔。'],
+  ['點盛行率 vs 期間盛行率','Point vs Period prevalence','某一「時點」vs 某段「期間」內的盛行率。'],
+  ['發生率與盛行率關係','P ≈ I × D','盛行率約等於發生率乘以平均病程 (duration)。'],
+  ['風險','Risk','個人在一段期間內發病的機率（0–1）；分母是期初風險人口。'],
+  ['率','Rate','含時間的測量（分母為人時 person-time）；需有明確時間與人口。'],
+  ['發生密度','Incidence density','以人時為分母的發生率，能處理追蹤時間不一的情形。'],
+  ['粗率 vs 特定率','Crude vs Specific rate','粗率是整體平均；特定率針對年齡/性別等次群。'],
+  ['標準化','Standardization','校正族群年齡結構差異以公平比較（直接/間接）。'],
+  ['嬰兒死亡率','Infant mortality rate','1 年內未滿 1 歲死亡數 ÷ 活產數；重要的族群健康指標。']],
+ when:'<b>寫研究的「疾病頻率」或比較不同族群健康狀況時。</b>要算病因/風險→用發生率；要規劃醫療資源→看盛行率；比較不同年齡結構的族群死亡率→先做標準化。',
+ examples:[
+  ['發生率 vs 盛行率的差別','慢性但不致命的疾病（病程長）會累積大量舊病例，使盛行率遠高於發生率；反之急性痊癒快的病盛行率低。 <span class="pg">p.19</span>'],
+  ['標準化比較死亡率','兩地粗死亡率不能直接比，因年齡結構不同；用直接或間接標準化校正後才公平。 <span class="pg">p.25–26</span>'],
+  ['嬰兒死亡率作為指標','嬰兒死亡率常被用來反映一個國家整體的健康與衛生水準。 <span class="pg">p.28</span>']]},
+ch3:{num:3,title:'流行病學監測與疫情調查',en:'Surveillance and Epidemic Outbreak Investigation',pages:'p.35–52',
+ goals:[
+  '理解疾病監測 (surveillance) 的功能：建立基線、看趨勢、偵測疫情。',
+  '會判斷「是否構成流行 (epidemic)」——與基線比較。',
+  '掌握疫情調查的標準步驟，並能用時間、地點、人 (time, place, person) 描述疫情。',
+  '看懂流行曲線 (epidemic curve) 並據以推論傳染模式。'],
+ terms:[
+  ['監測','Surveillance','持續、系統地收集分析健康資料並回饋，用於行動。'],
+  ['基線資料','Baseline data','疾病平時的預期水準，用來判斷是否異常。'],
+  ['流行/疫情','Epidemic / Outbreak','疾病明顯超過該地平時預期水準。'],
+  ['地方性','Endemic','某疾病在某地區持續存在的常態水準。'],
+  ['大流行','Pandemic','跨越國界、影響廣大人口的流行。'],
+  ['病例定義','Case definition','界定「誰算病例」的標準（臨床+檢驗+時間地點），使計數一致。'],
+  ['時間·地點·人','Time, Place, Person','描述疫情的三大面向。'],
+  ['流行曲線','Epidemic curve','以發病時間為橫軸的病例數分布，可推論點源或人傳人。'],
+  ['點源 vs 連續/增殖','Point-source vs Propagated','單一共同來源 vs 人傳人擴散，曲線形狀不同。']],
+ when:'<b>當你懷疑「某地某病突然變多」時。</b>先用病例定義統一計數，跟基線比對確認是否為疫情，再用時間地點人與流行曲線找出來源與傳播方式，最後採取控制措施並追蹤成效。',
+ examples:[
+  ['疫調的標準步驟','建立診斷→訂病例定義→確認是否流行→以時間地點人描述→提出假設→檢驗假設→採取控制→後續監測。 <span class="pg">p.42–50</span>'],
+  ['流行曲線判讀','陡升陡降的單峰曲線提示點源暴露；多波、間隔一個潛伏期的曲線提示人傳人（增殖型）。 <span class="pg">p.44–48</span>'],
+  ['約翰·斯諾與霍亂','經典的疫調精神——以地點分布鎖定水源（Broad Street pump），是流行病學調查的原型。 <span class="pg">Ch3/Ch4</span>']]},
+ch4:{num:4,title:'危險因子與因果的探討',en:'The Study of Risk Factors and Causation',pages:'p.55–63',
+ goals:[
+  '分清楚充分原因 (sufficient) 與必要原因 (necessary)、因果 vs 非因果關聯。',
+  '掌握判斷因果的步驟：統計關聯→時序→排除其他解釋。',
+  '辨識研究中的各種偏差 (bias)：選擇、分配、測量、回憶偏差。',
+  '理解隨機誤差、干擾 (confounding)、協同與效應修飾 (effect modification) 的差別。'],
+ terms:[
+  ['充分原因','Sufficient cause','只要出現就必然導致疾病的原因。'],
+  ['必要原因','Necessary cause','疾病發生一定要有它（如結核桿菌之於結核）。'],
+  ['因果 vs 非因果關聯','Causal vs Noncausal association','有統計關聯不代表因果，可能是干擾或偏差造成。'],
+  ['時序性','Temporal relationship','因必須先於果，是因果判斷的必要條件。'],
+  ['選擇偏差','Selection bias','納入研究對象的方式使兩組本就不同。'],
+  ['測量/回憶偏差','Measurement / Recall bias','資料收集不準；病例比對照更會回想暴露。'],
+  ['內在效度 vs 外在效度','Internal vs External validity','研究內部結論是否可信 vs 能否推論到其他人群。'],
+  ['隨機誤差','Random error','機運造成的變異，可用較大樣本降低。'],
+  ['干擾','Confounding','第三變項同時關聯暴露與疾病，扭曲了關係。'],
+  ['效應修飾','Effect modification / Interaction','暴露的效果隨第三變項不同而不同。']],
+ when:'<b>當你看到「A 與 B 有關」想判斷是不是因果時。</b>依序檢查：有沒有統計關聯？暴露是否早於疾病？能否排除偏差、干擾與機運？全部通過，因果推論才站得住腳。',
+ examples:[
+  ['關聯不等於因果','兩變項相關可能來自干擾因子或偏差；需系統性排除其他解釋。 <span class="pg">p.56–59</span>'],
+  ['回憶偏差','病例對照研究中，患病者往往比健康對照更努力回想過去暴露，造成回憶偏差。 <span class="pg">p.61</span>'],
+  ['干擾 vs 效應修飾','年齡若同時影響暴露與疾病＝干擾；若暴露效果在不同年齡層不同＝效應修飾（交互作用）。 <span class="pg">p.61</span>']]},
+ch5:{num:5,title:'常見研究設計與議題',en:'Common Research Designs and Issues in Epidemiology',pages:'p.67–79',
+ goals:[
+  '認識觀察性（描述/分析）與實驗性研究設計的分類與用途。',
+  '比較世代 vs 病例對照的優缺點與適用時機。',
+  '理解 RCT 為何是因果證據最強的設計。',
+  '警覺資料探勘 (data dredging) 與研究倫理問題。'],
+ terms:[
+  ['橫斷調查','Cross-sectional survey','同一時點測暴露與疾病，得盛行率；因果方向不明。'],
+  ['生態研究','Ecologic study','用群體資料分析；快速但有生態謬誤風險。'],
+  ['世代研究','Cohort study','從暴露追到疾病；可得發生率與 RR，適合罕見暴露。'],
+  ['前瞻 vs 回溯世代','Prospective vs Retrospective cohort','向未來追蹤 vs 用既有紀錄回溯，但分組仍依暴露。'],
+  ['病例對照研究','Case-control study','從疾病回推暴露；得 OR，適合罕見疾病、省時省錢。'],
+  ['巢式病例對照','Nested case-control','在既有世代中做病例對照，兼具兩者優點。'],
+  ['隨機對照試驗','RCT','隨機分配介入；因果證據最強。'],
+  ['田野試驗','Field trial','在社區/健康人群測試預防措施。'],
+  ['資料探勘','Data dredging','事後大量比對找顯著結果，易得假陽性。'],
+  ['生態謬誤','Ecologic fallacy','把群體層級關係錯誤套用到個人。']],
+ when:'<b>設計研究、寫計畫書、或評讀論文時判斷「這個設計適不適合這個問題」。</b>罕見疾病→病例對照；罕見暴露或需時序/發生率→世代；要最強因果證據且可行→RCT；只是想先產生假設→橫斷或生態。',
+ examples:[
+  ['DES 與陰道腺癌（病例對照）','8 名腺癌病例配 32 名對照，發現唯一顯著差異是 7 名病例曾在子宮內暴露於 DES——展示病例對照在罕見病的威力。 <span class="pg">p.72</span>'],
+  ['病例對照適合罕見病','疾病罕見時，世代研究需極大樣本才等到夠多病例，病例對照則直接從病例出發，效率高。 <span class="pg">p.72–73</span>'],
+  ['世代能算發生率與時序','世代研究先分暴露再追蹤，能確立時序並直接計算發生率與相對風險。 <span class="pg">p.70–72</span>']]},
+ch6:{num:6,title:'風險與效益的評估',en:'Assessment of Risk and Benefit',pages:'p.83–93',
+ goals:[
+  '計算並解讀相對風險 (RR)、勝算比 (OR) 與其方向。',
+  '理解絕對 vs 相對風險差異，以及歸因風險 (AR) 家族。',
+  '會用 ARR、RRR、NNT 表達介入效益。',
+  '認識族群歸因風險 (PAR) 在公衛政策上的意義。'],
+ terms:[
+  ['相對風險/風險比','Relative Risk / Risk Ratio (RR)','暴露組風險 ÷ 未暴露組風險；=1 無差異。'],
+  ['勝算比','Odds Ratio (OR)','ad ÷ bc；病例對照使用，罕見病時近似 RR。'],
+  ['絕對風險差','Absolute risk difference','兩組風險相減，反映實際衝擊大小。'],
+  ['歸因風險','Attributable Risk (AR)','暴露組多出來的絕對風險＝暴露組−未暴露組風險。'],
+  ['歸因風險百分比','AR% in exposed','暴露者的疾病中有多少比例可歸因於該暴露。'],
+  ['族群歸因風險','Population Attributable Risk (PAR / PAR%)','整個族群中可歸因於暴露、理論上可預防的疾病量。'],
+  ['絕對風險下降','Absolute Risk Reduction (ARR)','對照組風險 − 治療組風險。'],
+  ['相對風險下降','Relative Risk Reduction (RRR)','ARR ÷ 對照組風險。'],
+  ['益一需治數','Number Needed to Treat (NNT)','需治療幾人才有 1 人受益＝1 ÷ ARR。'],
+  ['成本效益/效果分析','Cost-benefit / Cost-effectiveness','以金錢或健康產出評估介入價值。']],
+ when:'<b>當你要向病人或決策者說明「這個暴露有多危險」或「這個治療有多值得」時。</b>個人衝擊看絕對差異與 NNT；病因強度看 RR/OR；公衛優先順序看 PAR（需同時考量暴露有多普遍）。',
+ examples:[
+  ['NNT 的計算','某療法讓 1/3 難治性腿部潰瘍癒合，ARR=0.333，NNT = 1 ÷ 0.333 = 3——只要治療 3 人就有 1 人受益。 <span class="pg">p.92</span>'],
+  ['RR 的方向','RR = 暴露組風險 ÷ 未暴露組風險；分子分母放對，才不會把保護因子看成危險因子。 <span class="pg">p.85–86</span>'],
+  ['常見暴露的 PAR 很高','即使 RR 只有 1.3，若該危險因子非常普遍（高盛行率），族群歸因風險仍可能很大，值得公衛介入。 <span class="pg">p.88</span>']]},
+ch7:{num:7,title:'醫療資料的品質',en:'Understanding the Quality of Medical Data',pages:'p.98–109',
+ goals:[
+  '分清楚準確度 (accuracy) 與精確度 (precision)、以及各種誤差來源。',
+  '計算並解讀敏感度、特異度、預測值、概似比。',
+  '理解 ROC 曲線與切點 (cutoff) 的取捨。',
+  '會用 Kappa 評估判讀者間的一致性。'],
+ terms:[
+  ['準確度 vs 精確度','Accuracy vs Precision','準確＝接近真值；精確＝重複測量結果一致（可精確但不準）。'],
+  ['偽陽性 / 偽陰性','False-positive / False-negative','無病驗成陽性 / 有病驗成陰性。'],
+  ['敏感度','Sensitivity','有病者中被驗出陽性的比例；高→適合篩檢、排除疾病 (SnNout)。'],
+  ['特異度','Specificity','健康者中被驗出陰性的比例；高→適合確診 (SpPin)。'],
+  ['陽性/陰性預測值','PPV / NPV','驗陽者中真有病 / 驗陰者中真沒病的比例；受盛行率影響大。'],
+  ['概似比','Likelihood Ratio (LR)','由 Se、Sp 組成、不受盛行率影響，適合比較檢驗效能。'],
+  ['ROC 曲線','Receiver Operating Characteristic curve','以不同切點畫敏感度 vs (1−特異度)，協助選最佳切點。'],
+  ['切點','Cutoff point','區分陽性/陰性的分界；移動切點會改變 Se 與 Sp 的取捨。'],
+  ['整體一致百分比','Overall percent agreement','兩判讀者一致的比例（未扣除運氣）。'],
+  ['Kappa','Kappa (κ)','扣除純運氣後的一致程度；0＝與運氣相同，1＝完全一致。']],
+ when:'<b>當你要評估「一個檢驗或量表可不可信」時。</b>看抓病能力→敏感度/特異度；看檢驗結果對個別病人的意義→預測值（別忘了盛行率）；比較不同檢驗→概似比/ROC；評估兩位判讀者是否一致→Kappa。',
+ examples:[
+  ['黑色素瘤第二意見（案例）','一份皮膚切片初判「疑似侵襲性黑色素瘤」，第二意見卻改判「良性痣」——凸顯判讀者間變異與資料品質的重要。 <span class="pg">p.98（案例）</span>'],
+  ['盛行率影響 PPV','同一個檢驗，用在低盛行率族群時偽陽性相對變多，PPV 下降。 <span class="pg">p.102</span>'],
+  ['Kappa 扣除運氣','兩位病理醫師的一致若只用百分比會高估，Kappa 校正了「碰巧一致」的部分。 <span class="pg">p.107</span>']]}
+};
+
+/* ============ QUIZ DATA ============ */
+const QUIZ={
+ch1:[
+ ['流行病學 (epidemiology) 研究的核心是？',['個別病人的治療','疾病在人群中的分布與決定因素','細胞的分子機轉','藥物的化學結構'],1,'流行病學研究人群層級疾病的分布與成因，是公衛的基礎。'],
+ ['「疾病三角」不包含下列哪一項？',['宿主 Host','病原 Agent','環境 Environment','價格 Price'],3,'疾病三角為宿主、病原、環境（加病媒），與價格無關。'],
+ ['BEINGS 模式中的「G」代表？',['地理 Geography','基因 Genetic','性別 Gender','政府 Government'],1,'G＝Genetic 基因因素。'],
+ ['大規模疫苗接種可能改變族群免疫模式，這屬於？',['測量誤差','公衛介入的非預期後果','隨機誤差','選擇偏差'],1,'介入解決舊問題卻可能製造新問題＝非預期後果。'],
+ ['疾病的「自然史 (natural history)」是指？',['疾病的地理分布','疾病從易感到結局的發展過程','疾病的治療費用','疾病的分子結構'],1,'自然史描述疾病未經治療時的完整發展過程。'],
+ ['「危險因子 (risk factor)」的正確描述是？',['一定是疾病的直接原因','會增加疾病發生機率的特徵或暴露','只包含基因因素','等於必要原因'],1,'危險因子增加發病機率，但未必是直接或必要原因。'],
+ ['多個因子共同作用、效果大於各自相加，稱為？',['標準化','協同作用 synergism','偏差','盛行'],1,'synergism＝協同作用。'],
+ ['病媒 (vector) 在疾病傳播中的角色是？',['宿主的免疫細胞','把病原從一處傳到宿主的媒介（如蚊子）','疾病的結局','診斷工具'],1,'vector 是傳播病原的媒介，如蚊、蜱。'],
+ ['用 BEINGS 模式的主要好處是？',['只看單一原因','系統性盤點疾病的多層面危險因子','計算 p 值','取代研究設計'],1,'BEINGS 幫助全面盤點多重危險因子，避免只想到單因。'],
+ ['下列何者最能代表流行病學的貢獻？',['發明新藥分子','調查疫情、設定疾病防治優先順序','進行外科手術','設計醫院建築'],1,'流行病學家調查疫情、監測介入、設定防治優先順序等。']
+],
+ch2:[
+ ['發生率 (incidence) 的分子是？',['所有現存病例','一段期間內的新病例','死亡人數','總人口'],1,'發生率分子是「新」病例數。'],
+ ['盛行率 (prevalence) 反映的是？',['變成病人的速度','某時點的疾病負擔（新+舊病例）','治療成功率','出生率'],1,'盛行率＝某時點所有病例／總人口，反映疾病負擔。'],
+ ['盛行率、發生率與病程的關係約為？',['P ≈ I ÷ D','P ≈ I × D','P ≈ I − D','P ≈ D ÷ I'],1,'盛行率 ≈ 發生率 × 平均病程。'],
+ ['一種慢性且不致命、病程很長的疾病，通常？',['盛行率遠高於發生率','發生率遠高於盛行率','兩者一定相等','沒有盛行率'],0,'病程長會累積大量舊病例，使盛行率遠高於發生率。'],
+ ['「率 (rate)」與「風險 (risk)」最大的差別在於？',['率沒有分母','率的分母含時間（人時）','風險一定大於 1','風險用於死亡'],1,'率的分母含時間（person-time），風險是一段期間的機率。'],
+ ['發生密度 (incidence density) 的分母是？',['期初人口','人時 person-time','現存病例','活產數'],1,'發生密度以人時為分母，處理追蹤時間不一。'],
+ ['為什麼比較兩地粗死亡率可能誤導？',['兩地人口都一樣','兩地年齡結構不同會混淆','率不能比較','分母相同'],1,'年齡結構不同是干擾，需標準化後才可公平比較。'],
+ ['直接標準化 (direct standardization) 的目的是？',['增加樣本','校正族群結構差異以公平比較率','計算 NNT','找病例'],1,'標準化校正年齡等結構差異。'],
+ ['嬰兒死亡率的分母通常是？',['總人口','活產數 live births','孕婦數','死亡總數'],1,'嬰兒死亡率＝未滿1歲死亡數 ÷ 活產數。'],
+ ['要研究疾病「病因與風險」，最適合用哪個頻率指標？',['盛行率','發生率','粗死亡率','出生率'],1,'發生率反映新發病，最適合病因研究。']
+],
+ch3:[
+ ['疾病監測 (surveillance) 的目的不包含？',['建立基線資料','偵測疫情','評估介入成效','替個別病人開處方'],3,'監測是族群層級的資料收集與行動，非個別診療。'],
+ ['判斷「是否構成流行 (epidemic)」的關鍵是？',['病例數超過 100','與該地平時基線相比明顯超出','有人住院','媒體報導'],1,'流行＝明顯超過該地平時預期（基線）水準。'],
+ ['「地方性 (endemic)」指的是？',['疾病跨國大流行','疾病在某地持續存在的常態水準','疾病消失','疾病新出現'],1,'endemic＝某地區長期存在的基準水準。'],
+ ['病例定義 (case definition) 的作用是？',['決定治療方式','統一「誰算病例」的標準使計數一致','計算成本','隨機分組'],1,'病例定義讓不同人計數一致，是疫調基礎。'],
+ ['描述疫情的三大面向是？',['價格、地點、時間','時間、地點、人 (time, place, person)','宿主、病原、環境','敏感度、特異度、PPV'],1,'疫情用時間、地點、人來刻畫。'],
+ ['流行曲線 (epidemic curve) 的橫軸通常是？',['地點','發病時間','年齡','檢驗值'],1,'流行曲線以發病時間為橫軸。'],
+ ['陡升陡降的單峰流行曲線最可能提示？',['人傳人增殖','單一共同來源（點源）暴露','疫苗失效','慢性病'],1,'點源暴露常呈單峰、陡升陡降。'],
+ ['間隔約一個潛伏期、一波接一波的曲線提示？',['點源','人傳人（增殖型）傳播','無疫情','測量誤差'],1,'增殖型（人傳人）呈多波、間隔一個潛伏期。'],
+ ['疫調的第一步通常是？',['採取控制措施','建立診斷、確認病例是真的','發新聞稿','計算 NNT'],1,'先確立診斷，再訂病例定義、確認是否流行。'],
+ ['約翰·斯諾調查霍亂靠的是？',['基因定序','以地點分布鎖定共同水源','隨機對照試驗','ROC 曲線'],1,'Snow 以地圖上病例的地點分布鎖定 Broad Street 水泵。']
+],
+ch4:[
+ ['「必要原因 (necessary cause)」的意思是？',['出現就一定致病','疾病發生一定要有它','與疾病無關','等於危險因子'],1,'必要原因是疾病發生的必備條件（如結核桿菌）。'],
+ ['因果推論中，下列何者是「必要條件」？',['大樣本','暴露在疾病之前（時序性）','高費用','媒體關注'],1,'因必須先於果，時序性是因果的必要條件。'],
+ ['「有統計關聯」代表？',['一定是因果','未必是因果，可能是偏差或干擾','沒有意義','時序成立'],1,'關聯≠因果，需排除偏差、干擾與機運。'],
+ ['病例比對照更會回想過去暴露，屬於？',['選擇偏差','回憶偏差 recall bias','干擾','效應修飾'],1,'recall bias＝回憶偏差，常見於病例對照。'],
+ ['第三變項同時關聯暴露與疾病而扭曲關係，稱為？',['效應修飾','干擾 confounding','隨機誤差','偽陰性'],1,'confounding＝干擾。'],
+ ['暴露的效果隨第三變項不同而改變，稱為？',['干擾','效應修飾 (interaction)','選擇偏差','標準化'],1,'effect modification＝效應修飾（交互作用）。'],
+ ['內在效度 (internal validity) 指的是？',['能否推論到別的人群','研究內部結論本身是否可信','費用高低','樣本大小'],1,'內在效度＝研究本身結論可信度；外在效度才是可推論性。'],
+ ['隨機誤差 (random error) 可用什麼降低？',['改變假設','增大樣本數','移動切點','改用生態研究'],1,'加大樣本可降低隨機誤差的影響。'],
+ ['選擇偏差 (selection bias) 的來源是？',['測量儀器不準','納入研究對象的方式使兩組本就不同','回憶不清','年齡干擾'],1,'選擇偏差源於選取對象的方式造成組間系統差異。'],
+ ['判斷因果的合理順序是？',['先排除其他解釋再看關聯','關聯→時序→排除其他解釋','先看費用','先算 NNT'],1,'依序：統計關聯、時序、排除偏差干擾機運。']
+],
+ch5:[
+ ['疾病「罕見」時，通常首選哪種設計？',['世代研究','病例對照研究','生態研究','RCT'],1,'罕見病用病例對照最有效率。'],
+ ['需要確立「時序」並計算發生率，適合？',['橫斷研究','世代研究','病例報告','生態研究'],1,'世代從暴露追到疾病，能確立時序與算發生率。'],
+ ['因果證據最強的設計是？',['橫斷調查','病例對照','隨機對照試驗 RCT','生態研究'],2,'RCT 透過隨機分配介入，因果證據最強。'],
+ ['橫斷研究 (cross-sectional) 的主要限制是？',['太貴','無法判斷暴露與疾病誰先誰後','需要追蹤 10 年','不能算盛行率'],1,'同時測量使因果方向不明。'],
+ ['「生態謬誤 (ecologic fallacy)」是指？',['樣本太小','把群體層級關係錯套到個人','測量不準','回憶偏差'],1,'生態研究用群體資料，不能直接推論個人。'],
+ ['DES 與陰道腺癌的經典研究採用哪種設計？',['世代','病例對照','RCT','橫斷'],1,'8 病例配 32 對照的病例對照研究。'],
+ ['病例對照研究的結果通常以什麼表示關聯？',['相對風險 RR','勝算比 OR','發生率','盛行率'],1,'病例對照無法直接算風險，用 OR。'],
+ ['「罕見暴露」較適合哪種設計？',['病例對照','世代研究','橫斷','生態'],1,'罕見暴露用世代較能確保暴露組人數。'],
+ ['巢式病例對照 (nested case-control) 的特點是？',['完全不需追蹤','在既有世代中做病例對照','只用群體資料','不能算 OR'],1,'在既有世代內選病例與對照，兼顧效率與資料品質。'],
+ ['事後大量比對資料以尋找顯著結果的風險是？',['提高精確度','資料探勘造成假陽性','降低費用','增加時序'],1,'data dredging 容易得到假陽性關聯。']
+],
+ch6:[
+ ['相對風險 (RR) 的計算是？',['暴露組風險 − 未暴露組風險','暴露組風險 ÷ 未暴露組風險','ad ÷ bc','1 ÷ ARR'],1,'RR＝暴露組風險 ÷ 未暴露組風險。'],
+ ['RR = 1 代表？',['暴露組風險較高','兩組風險相同、無關聯','暴露具保護作用','資料錯誤'],1,'RR=1 表示兩組風險相同。'],
+ ['病例對照研究用哪個指標估計關聯？',['RR','勝算比 OR','發生率','NNT'],1,'病例對照用 OR。'],
+ ['歸因風險 (AR) 的意義是？',['兩組風險相除','暴露多造成的絕對超額風險','檢驗準確度','一致性'],1,'AR＝暴露組−未暴露組風險，是絕對超額。'],
+ ['NNT 的計算公式是？',['1 ÷ ARR','ARR ÷ 1','RR × 100','ad ÷ bc'],0,'NNT = 1 ÷ ARR。'],
+ ['某療法 ARR = 0.333，NNT 約為？',['1','3','10','33'],1,'NNT = 1 ÷ 0.333 ≈ 3。'],
+ ['NNT 越小代表？',['治療越無效','治療越有效','風險越高','樣本越大'],1,'NNT 越小＝需治療的人越少即有 1 人受益，越有效。'],
+ ['族群歸因風險 (PAR) 同時取決於？',['費用與時間','風險比與暴露盛行率','敏感度與特異度','年齡與性別'],1,'PAR 取決於 RR 與暴露有多普遍。'],
+ ['一個 RR 只有 1.3 但非常普遍的危險因子，其 PAR 可能？',['一定很小','可能很大，值得公衛介入','等於 0','無法計算'],1,'常見暴露即使 RR 不大，PAR 也可能很高。'],
+ ['要向個別病人說明治療「實際幫助多大」，最直觀的是？',['RR','NNT 與絕對風險下降','OR','盛行率'],1,'NNT/ARR 是絕對效益，對個人最直觀。']
+],
+ch7:[
+ ['準確度 (accuracy) 與精確度 (precision) 的差別是？',['兩者相同','準確＝接近真值；精確＝重複結果一致','精確一定準確','準確一定精確'],1,'可以很精確（一致）卻不準確（偏離真值）。'],
+ ['敏感度 (sensitivity) 的定義是？',['健康者中驗陰的比例','有病者中被驗出陽性的比例','驗陽者中真有病的比例','扣除運氣的一致'],1,'Se＝有病者中檢驗陽性的比例。'],
+ ['特異度 (specificity) 高的檢驗適合用來？',['篩檢','確診 (rule in)','估計盛行率','計算 NNT'],1,'高特異度減少偽陽性，適合確診。'],
+ ['陽性預測值 (PPV) 會被什麼強烈影響？',['檢驗費用','疾病盛行率','醫師年資','儀器品牌'],1,'PPV 受盛行率影響很大。'],
+ ['同一檢驗用在低盛行率族群，PPV 會？',['上升','下降','不變','等於敏感度'],1,'盛行率低時偽陽性相對變多，PPV 下降。'],
+ ['概似比 (likelihood ratio) 的優點是？',['等於盛行率','不受盛行率影響，適合比較檢驗效能','就是 PPV','衡量一致性'],1,'LR 由 Se、Sp 組成，不受盛行率影響。'],
+ ['ROC 曲線主要幫助我們？',['計算 NNT','在敏感度與特異度間選最佳切點','估計費用','隨機分組'],1,'ROC 呈現不同切點的 Se 與 1−Sp，協助選切點。'],
+ ['移動檢驗的切點 (cutoff) 會？',['同時提高 Se 與 Sp','在 Se 與 Sp 之間取捨（一升一降）','不影響任何指標','改變盛行率'],1,'切點移動使敏感度與特異度此消彼長。'],
+ ['Kappa (κ) 用來衡量？',['檢驗費用','扣除運氣後兩判讀者的一致程度','疾病盛行率','風險比'],1,'Kappa 校正「碰巧一致」，衡量真實一致性。'],
+ ['只用「整體一致百分比」評估判讀一致性的問題是？',['太複雜','會高估，因未扣除純靠運氣的一致','需要盛行率','不能算'],1,'單純百分比未扣運氣，會高估一致性，故用 Kappa。']
+]
+};
+
+/* ============ RENDER CHAPTERS ============ */
+function renderChapter(key){
+  const c=CH[key],quiz=QUIZ[key],L=['A','B','C','D','E'];
+  const termsHtml=c.terms.map(t=>`<div class="term"><div class="t-name">${t[0]} <span class="en">${t[1]}</span></div><div class="t-def">${t[2]}</div></div>`).join('');
+  const goalsHtml=c.goals.map(g=>`<li>${g}</li>`).join('');
+  const exHtml=c.examples.map(e=>`<div class="ex"><b>📌 ${e[0]}</b><br>${e[1]}</div>`).join('');
+  const quizHtml=quiz.map((q,i)=>{
+    const choices=q[1].map((ch,j)=>`<label class="choice" data-correct="${j===q[2]}" onclick="answer(this,'${key}',${i})"><span class="k">${L[j]}</span>${ch}</label>`).join('');
+    return `<div class="qitem" data-q="${i}"><div class="qq"><span class="n">${i+1}</span>${q[0]}</div>${choices}
+      <div class="explain"><b>✔ 正解：${L[q[2]]}。</b> ${q[3]}</div></div>`;
+  }).join('');
+  document.getElementById('view-'+key).innerHTML=`
+   <div class="card handout">
+     <button class="print-btn no-print" onclick="printOne('${key}')">🖨 匯出本章講義 PDF</button>
+     <h2 class="title">第 ${c.num} 章　${c.title}</h2>
+     <div class="sub"><span class="en">${c.en}</span> <span class="pg">${c.pages}</span></div>
+     <div class="goal-box"><b>🎯 學習目標 Learning Objectives</b><ul class="clean">${goalsHtml}</ul></div>
+     <h3 class="sec"><span class="em">📖</span>重要名詞 Key Terms</h3>${termsHtml}
+     <h3 class="sec"><span class="em">🕐</span>應用時機 When to Apply</h3><div class="when">${c.when}</div>
+     <h3 class="sec"><span class="em">💡</span>書中例子 Examples from the Book</h3>${exHtml}
+   </div>
+   <div class="card quiz-card no-print">
+     <div class="quiz-head"><h3 class="sec" style="border:0;margin:0"><span class="em">📝</span>理解測驗（10 題）Self-Test</h3>
+       <div class="score" id="score-${key}">作答進度 0 / 10　得分 0</div></div>
+     <p class="sub">點選答案即可立即看到對錯與詳解。</p>${quizHtml}
+   </div>`;
+}
+Object.keys(CH).forEach(renderChapter);
+
+/* ============ QUIZ INTERACTION ============ */
+const qs={};
+function answer(el,key,qi){
+  const item=el.closest('.qitem'); if(item.dataset.done) return; item.dataset.done='1';
+  const correct=el.dataset.correct==='true';
+  item.querySelectorAll('.choice').forEach(ch=>{ch.classList.add('disabled'); if(ch.dataset.correct==='true')ch.classList.add('correct');});
+  if(!correct)el.classList.add('wrong');
+  item.querySelector('.explain').classList.add('show');
+  qs[key]=qs[key]||{done:0,score:0}; qs[key].done++; if(correct)qs[key].score++;
+  document.getElementById('score-'+key).textContent=`作答進度 ${qs[key].done} / 10　得分 ${qs[key].score}`;
+}
+/* ============ PRINT ============ */
+function printAll(){document.body.classList.add('printing-all');window.print();}
+function printOne(key){document.body.classList.add('printing-one');document.getElementById('view-'+key).classList.add('print-target');window.print();}
+window.addEventListener('afterprint',()=>{document.body.classList.remove('printing-all','printing-one');
+  document.querySelectorAll('.print-target').forEach(e=>e.classList.remove('print-target'));});
+</script>
+</body>
+</html>
