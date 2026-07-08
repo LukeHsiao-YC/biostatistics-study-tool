@@ -251,6 +251,80 @@ stat:{
   }
   return null;
  }
+},
+
+/* ===== Section 3 · 預防策略選擇器 ===== */
+prevention:{
+ label:'預防策略選擇器', pill:'Choosing a Prevention Strategy', section:'Section 3 預防醫學',
+ intro:'依疾病在自然史中的階段，建議屬於初段／次段／三段預防及具體方法。',
+ questions:[
+  {id:'stage',t:'Q1. 這位對象目前處於疾病自然史的哪個階段？',h:'預防的層級取決於「疾病走到哪一步」。',
+   o:[['well','尚未發病（健康或只有危險因子）','還沒有疾病過程'],
+      ['presymp','已有疾病過程但「還沒症狀」','可被篩檢早期偵測（如無症狀高膽固醇、原位癌）'],
+      ['symp','已出現「症狀」、已確診','疾病已臨床顯現']]},
+  {id:'pmethod',t:'Q2. 初段預防：你的手段偏向？',h:'',
+   o:[['promo','一般健康促進','衛教、健康飲食、運動、戒菸、壓力管理'],
+      ['protect','特定保護 Specific protection','疫苗接種、化學預防（高風險者低劑量阿斯匹靈）、危險因子藥物']]},
+  {id:'tstage',t:'Q2. 三段預防：疾病屬早期還是晚期症狀？',h:'',
+   o:[['early','早期症狀','目標＝失能限制 disability limitation'],
+      ['late','晚期症狀 / 已失能','目標＝復健 rehabilitation']]}
+ ],
+ visibility(s,show){ show('pmethod', s.stage==='well'); show('tstage', s.stage==='symp'); },
+ recommend(s){
+  if(!s.stage) return null;
+  if(s.stage==='well'){
+   if(!s.pmethod) return null;
+   if(s.pmethod==='promo') return {title:'初段預防 · 健康促進',rec:'Primary Prevention — 一般健康促進 Health Promotion',
+     alt:'戒菸、健康飲食、規律運動、壓力管理、體重控制。',
+     why:'在疾病「發生之前」就降低危險因子，針對一般大眾、非特定疾病。 <span class="pg">Ch14–15 p.213, 222</span>'};
+   return {title:'初段預防 · 特定保護',rec:'Primary Prevention — 特定保護 Specific Protection',
+     alt:'疫苗接種、化學預防（高風險者低劑量阿斯匹靈）、危險因子藥物（降血壓、降血脂）。',
+     why:'針對「特定疾病」在發生前提供保護，如免疫接種、化學預防。 <span class="pg">Ch15 p.222–231</span>'};
+  }
+  if(s.stage==='presymp') return {title:'次段預防 · 篩檢與早期偵測',
+    rec:'Secondary Prevention — 篩檢 Screening / 早期偵測',
+    alt:'在「還沒症狀」時攔截疾病，如子宮頸抹片、高血壓/高膽固醇篩檢。建議搭配「篩檢適當性檢核」評估是否值得推行。',
+    why:'次段預防的前提是體內已有疾病過程但尚未出現症狀，目標是及早發現、及早治療。 <span class="pg">Ch16 p.237</span>'};
+  if(!s.tstage) return null;
+  if(s.tstage==='early') return {title:'三段預防 · 失能限制',rec:'Tertiary Prevention — 失能限制 Disability Limitation',
+    alt:'早期症狀病人：積極治療以阻止惡化、避免併發症與失能。',
+    why:'疾病已出現症狀；早期症狀階段目標是限制失能（如心肌梗塞後的急性處置）。 <span class="pg">Ch17 p.250</span>'};
+  return {title:'三段預防 · 復健',rec:'Tertiary Prevention — 復健 Rehabilitation',
+    alt:'晚期/已失能病人：復健以恢復功能、提升生活品質、重返社會。',
+    why:'晚期症狀或已失能階段，目標是復健、恢復最大功能。 <span class="pg">Ch17 p.250–256</span>'};
+ }
+},
+
+/* ===== Section 3 · 篩檢適當性檢核 ===== */
+screening:{
+ label:'篩檢適當性檢核', pill:'Screening Appropriateness', section:'Section 3 預防醫學',
+ intro:'依課本三大最低要求（疾病、檢驗、醫療體系）快速檢核某疾病是否適合族群篩檢。',
+ questions:[
+  {id:'disease',t:'① 疾病條件 Disease requirements',h:'疾病夠嚴重、盛行率足夠、有「可偵測的臨床前期 (detectable preclinical phase)」、且早期治療比晚期有效？（比喻：真的有火災風險）',
+   o:[['yes','大致符合','嚴重且早治有效、有可篩檢的無症狀期'],
+      ['no','不符合','太罕見/太輕微，或早治沒有比較好']]},
+  {id:'test',t:'② 檢驗條件 Screening test requirements',h:'檢驗夠敏感與特異、安全、民眾可接受、成本合理？（比喻：煙霧偵測器要對真火反應、不亂叫）',
+   o:[['yes','大致符合','夠準、安全、可接受、便宜'],
+      ['no','不符合','太多偽陽/偽陰、危險、昂貴或難接受']]},
+  {id:'system',t:'③ 醫療體系條件 Health care system requirements',h:'篩檢陽性者有後續確診與治療的資源、可近性與可負擔性？（比喻：警報響了要有人來滅火）',
+   o:[['yes','大致符合','有完整後續診療與轉介'],
+      ['no','不符合','驗出來卻沒有後續資源']]}
+ ],
+ visibility(s,show){},
+ recommend(s){
+  const cats={disease:'疾病條件',test:'檢驗條件',system:'醫療體系條件'};
+  const fails=Object.keys(cats).filter(k=>s[k]==='no');
+  const yeses=Object.keys(cats).filter(k=>s[k]==='yes');
+  if(fails.length) return {title:'不建議大規模族群篩檢',
+    rec:'未達最低要求：'+fails.map(k=>cats[k]).join('、'),
+    alt:'三大要求任一項未至少部分符合，大規模篩檢就可能不恰當。',
+    why:'課本以火災比喻：疾病＝是否真有火、檢驗＝煙霧偵測器準不準、體系＝警報後有沒有人來滅火，三者缺一不可。判讀成效時也要小心前導時間偏差 (lead-time bias)、長度偏差 (length bias) 與選擇偏差。 <span class="pg">Ch16 p.237–240</span>'};
+  if(yeses.length===3) return {title:'適合考慮推行族群篩檢',
+    rec:'三大最低要求皆大致符合 ✓',
+    alt:'仍需評估效益與傷害、倫理、重複篩檢頻率，並注意偏差對成效評估的影響。',
+    why:'疾病、檢驗、醫療體系三大要求皆符合。仍要注意：前導時間偏差（看似延長存活其實只是提早診斷）、長度偏差（篩檢偏向抓到進展較慢的病例）。 <span class="pg">Ch16 p.237–241</span>'};
+  return null;
+ }
 }
 
 }; // end SELECTORS

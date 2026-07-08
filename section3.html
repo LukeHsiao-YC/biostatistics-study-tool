@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>預防醫學學習助手 — Jekel's Preventive Medicine (Section 3)</title>
+<style>
+  :root{
+    --bg:#f5f7f4; --card:#ffffff; --ink:#1f2733; --muted:#5b6675;
+    --brand:#b45309; --brand2:#d97706; --accent:#0d6e6e; --accent2:#e7f4f4;
+    --warn:#d97706; --bad:#c23b3b; --good:#128a5a;
+    --line:#e6e6df; --chip:#fbeee3; --shadow:0 2px 10px rgba(30,50,90,.07);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",Segoe UI,system-ui,sans-serif;
+       background:var(--bg);color:var(--ink);line-height:1.7;-webkit-font-smoothing:antialiased}
+  header.top{background:linear-gradient(120deg,#8a3d0a,#d97706);color:#fff;padding:26px 20px 20px}
+  header.top h1{margin:0 0 4px;font-size:22px;letter-spacing:.5px}
+  header.top p{margin:0;opacity:.9;font-size:13.5px}
+  header.top a.home{color:#fff;text-decoration:none;font-size:13px;opacity:.9;border:1px solid rgba(255,255,255,.5);padding:3px 10px;border-radius:8px;display:inline-block;margin-bottom:10px}
+  header.top a.home:hover{background:rgba(255,255,255,.15)}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 16px}
+  nav.tabs{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);
+           display:flex;flex-wrap:wrap;gap:4px;padding:8px 10px;box-shadow:var(--shadow)}
+  nav.tabs button{border:0;background:transparent;color:var(--muted);font-size:13.5px;font-weight:600;
+        padding:8px 11px;border-radius:9px;cursor:pointer;font-family:inherit;transition:.15s}
+  nav.tabs button:hover{background:var(--chip);color:var(--ink)}
+  nav.tabs button.active{background:var(--brand);color:#fff}
+  main{padding:22px 0 60px}
+  section.view{display:none;animation:fade .25s ease}
+  section.view.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;margin:0 0 18px;box-shadow:var(--shadow)}
+  h2.title{font-size:20px;margin:0 0 4px;color:var(--brand)}
+  .sub{color:var(--muted);font-size:13.5px;margin:0 0 16px}
+  .pill{display:inline-block;background:var(--chip);color:var(--brand);border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600;margin-left:6px}
+  .en{color:var(--brand2);font-style:italic;font-weight:600}
+  .pg{color:var(--accent);font-weight:700;font-size:12.5px;white-space:nowrap}
+  .q-block{border:1px solid var(--line);border-radius:12px;padding:16px 18px;background:#fdfcfa;margin-bottom:14px}
+  .q-block h3{margin:0 0 4px;font-size:15.5px}
+  .q-block .hint{font-size:12.5px;color:var(--muted);margin:0 0 12px}
+  .opts{display:flex;flex-wrap:wrap;gap:9px}
+  .opts button{border:1.5px solid var(--line);background:#fff;padding:9px 14px;border-radius:10px;cursor:pointer;
+        font-family:inherit;font-size:13.5px;color:var(--ink);transition:.12s;text-align:left}
+  .opts button:hover{border-color:var(--brand2);background:#fdf3e8}
+  .opts button.sel{border-color:var(--brand);background:var(--brand);color:#fff;box-shadow:0 2px 8px rgba(180,83,9,.3)}
+  .opts button small{display:block;font-size:11.5px;opacity:.8;font-weight:400;margin-top:2px}
+  .opts button.sel small{opacity:.9}
+  .result{margin-top:6px;border-radius:14px;border:2px solid var(--brand2);background:var(--chip);padding:20px}
+  .result.empty{border-color:var(--line);background:#fafbfd;color:var(--muted);text-align:center}
+  .result h3{margin:0 0 8px;color:var(--brand);font-size:18px}
+  .result .rec{font-size:17px;font-weight:700;color:var(--ink);margin:6px 0}
+  .result .alt{font-size:14px;color:var(--muted);margin:4px 0}
+  .result .why{background:#fff;border-radius:10px;padding:12px 14px;margin-top:12px;font-size:13.5px;border:1px solid #f0dcc3}
+  .reset{background:#fff;border:1px solid var(--line);color:var(--muted);padding:7px 14px;border-radius:9px;cursor:pointer;font-family:inherit;font-size:13px;margin-top:14px}
+  .reset:hover{border-color:var(--bad);color:var(--bad)}
+  .goal-box{background:linear-gradient(120deg,#fbeee3,#e7f4f4);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:12px 16px;margin:0 0 16px}
+  .goal-box b{color:var(--brand)}
+  h3.sec{font-size:16px;margin:20px 0 8px;padding-bottom:5px;border-bottom:2px solid var(--chip);color:var(--ink)}
+  h3.sec .em{font-size:18px;margin-right:6px}
+  .term{border:1px solid var(--line);border-radius:10px;padding:11px 14px;margin:8px 0;background:#fdfcfa}
+  .term .t-name{font-weight:700;font-size:14.5px}
+  .term .t-def{font-size:13.5px;color:#38424f;margin-top:2px}
+  ul.clean{margin:6px 0;padding-left:20px}
+  ul.clean li{margin:5px 0;font-size:14px}
+  .ex{background:#fdf3e8;border:1px solid #f2ddc7;border-radius:10px;padding:12px 15px;margin:8px 0;font-size:13.8px}
+  .ex b{color:var(--brand)}
+  .when{background:#e9f6f2;border:1px solid #cde8dd;border-radius:10px;padding:12px 15px;font-size:13.8px}
+  table.ref{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+  table.ref th,table.ref td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+  table.ref th{background:var(--chip);color:var(--brand)}
+  .print-btn{background:var(--brand);color:#fff;border:0;padding:8px 15px;border-radius:9px;cursor:pointer;font-family:inherit;font-size:13px;float:right}
+  .print-btn:hover{background:#8a3d0a}
+  .quiz-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+  .score{font-weight:700;color:var(--brand);font-size:14px}
+  .qitem{border:1px solid var(--line);border-radius:12px;padding:15px 17px;margin:12px 0;background:#fff}
+  .qitem .qq{font-weight:600;font-size:14.5px;margin-bottom:10px}
+  .qitem .qq span.n{display:inline-block;background:var(--brand);color:#fff;border-radius:6px;padding:1px 8px;font-size:12.5px;margin-right:8px}
+  .choice{display:block;border:1.5px solid var(--line);border-radius:9px;padding:9px 13px;margin:6px 0;cursor:pointer;font-size:13.8px;transition:.12s;background:#fdfdfe}
+  .choice:hover{border-color:var(--brand2);background:#fdf6ee}
+  .choice.correct{border-color:var(--good);background:#e9f8f0}
+  .choice.wrong{border-color:var(--bad);background:#fbecec}
+  .choice.disabled{cursor:default;pointer-events:none;opacity:.85}
+  .choice .k{font-weight:700;margin-right:7px;color:var(--brand)}
+  .explain{display:none;margin-top:9px;padding:10px 13px;border-radius:9px;background:#fbf3ea;font-size:13px;border-left:3px solid var(--brand2)}
+  .explain.show{display:block}
+  .explain b{color:var(--good)}
+  footer{text-align:center;color:var(--muted);font-size:12.5px;padding:20px}
+  #pdfAll{position:fixed;right:18px;bottom:18px;z-index:50;background:var(--accent);color:#fff;border:0;
+      padding:12px 18px;border-radius:999px;cursor:pointer;font-family:inherit;font-size:14px;font-weight:700;
+      box-shadow:0 4px 16px rgba(13,110,110,.4)}
+  @media print{
+    header.top,nav.tabs,.reset,footer,.no-print,#pdfAll{display:none!important}
+    body{background:#fff}
+    .card{box-shadow:none;border:1px solid #ccc;break-inside:avoid}
+    body.printing-all .view{display:block!important;break-before:page}
+    body.printing-all #view-ch14{break-before:auto}
+    body.printing-all #view-prevention,body.printing-all #view-screening{display:none!important}
+    body.printing-all .quiz-card{display:none!important}
+    body.printing-one .view{display:none!important}
+    body.printing-one .view.print-target{display:block!important}
+    body.printing-one .quiz-card{display:none!important}
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="home" href="index.html">🏠 回首頁</a>
+    <h1>預防醫學學習助手 <span style="font-size:13px;opacity:.85">Preventive Medicine Study Companion</span></h1>
+    <p>依據《Jekel's ... Preventive Medicine》Section 3（第 14–23 章）· 預防策略選擇器 + 篩檢適當性檢核 + 白話講義 + 測驗</p>
+  </div>
+</header>
+
+<nav class="tabs wrap" id="tabs">
+  <button data-t="prevention" class="active">🎯 預防策略選擇器</button>
+  <button data-t="screening">🔎 篩檢適當性檢核</button>
+  <button data-t="ch14">14 預防醫學導論</button>
+  <button data-t="ch15">15 初段預防</button>
+  <button data-t="ch16">16 次段預防</button>
+  <button data-t="ch17">17 三段預防</button>
+  <button data-t="ch18">18 預防服務建議</button>
+  <button data-t="ch19">19 慢性病</button>
+  <button data-t="ch20">20 傳染病</button>
+  <button data-t="ch21">21 心理健康</button>
+  <button data-t="ch22">22 職業與環境</button>
+  <button data-t="ch23">23 傷害預防</button>
+</nav>
+
+<main class="wrap">
+  <section id="view-prevention" class="view active">
+    <div class="card">
+      <h2 class="title">🎯 預防策略選擇器 <span class="pill">Choosing a Prevention Strategy</span></h2>
+      <p class="sub">依疾病在自然史中的階段，判斷屬於初段／次段／三段預防與具體方法。</p>
+      <div data-selector="prevention"></div>
+    </div>
+    <div class="card">
+      <h3 class="sec"><span class="em">🗺️</span>三段預防速查 <span class="pg">Ch14 p.213 · Ch16 p.237 · Ch17 p.250</span></h3>
+      <table class="ref">
+        <tr><th>層級</th><th>時機（疾病階段）</th><th>做法與例子</th></tr>
+        <tr><td>初段預防 Primary</td><td>尚未發病</td><td>健康促進（戒菸、飲食、運動）＋特定保護（疫苗、化學預防、危險因子控制）</td></tr>
+        <tr><td>次段預防 Secondary</td><td>有疾病但無症狀</td><td>篩檢／早期偵測（抹片、血壓/膽固醇篩檢）</td></tr>
+        <tr><td>三段預防 Tertiary</td><td>已有症狀</td><td>早期→失能限制；晚期→復健</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section id="view-screening" class="view">
+    <div class="card">
+      <h2 class="title">🔎 篩檢適當性檢核 <span class="pill">Screening — Minimum Requirements</span></h2>
+      <p class="sub">依課本三大最低要求檢核某疾病是否適合族群篩檢（火災比喻：疾病＝有沒有火、檢驗＝煙霧偵測器、體系＝有沒有人來滅火）。</p>
+      <div data-selector="screening"></div>
+    </div>
+  </section>
+
+  <section id="view-ch14" class="view"></section>
+  <section id="view-ch15" class="view"></section>
+  <section id="view-ch16" class="view"></section>
+  <section id="view-ch17" class="view"></section>
+  <section id="view-ch18" class="view"></section>
+  <section id="view-ch19" class="view"></section>
+  <section id="view-ch20" class="view"></section>
+  <section id="view-ch21" class="view"></section>
+  <section id="view-ch22" class="view"></section>
+  <section id="view-ch23" class="view"></section>
+</main>
+
+<button id="pdfAll" class="no-print" onclick="printAll()">📄 匯出全部講義為 PDF</button>
+<footer>
+  內容整理自《Jekel's Epidemiology, Biostatistics, Preventive Medicine and Public Health》Section 3 Preventive Medicine（第 14–23 章）。<br>
+  頁碼為課本內文頁碼。本工具為學習輔助，臨床決策請以原著與專業意見為準。
+</footer>
+
+<script>
+document.getElementById('tabs').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return;
+  document.querySelectorAll('#tabs button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+b.dataset.t).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+const CH={
+ch14:{num:14,title:'預防醫學導論',en:'Introduction to Preventive Medicine',pages:'p.208–221',
+ goals:['理解「健康」的多元定義與健康的社會決定因素 (social determinants)。','掌握疾病自然史與三段預防 (primary/secondary/tertiary) 的架構。','認識預防的經濟考量：預防是否有效、是否值得投入資源。','了解預防醫學是一個正式的醫學專科領域。'],
+ terms:[['預防醫學','Preventive medicine','以促進健康、預防疾病與失能為核心的醫學領域，補足傳統偏重診斷治療的取向。'],['健康的社會決定因素','Social determinants of health','影響健康的社會經濟條件，如教育、收入、居住、環境。'],['疾病自然史','Natural history of disease','疾病從易感、臨床前期、臨床期到結局的發展歷程，是分段預防的依據。'],['初段預防','Primary prevention','在疾病「發生前」降低危險因子（健康促進＋特定保護）。'],['次段預防','Secondary prevention','在疾病「無症狀期」及早偵測與處理（篩檢）。'],['三段預防','Tertiary prevention','疾病「有症狀後」限制失能與復健。'],['健康促進','Health promotion','提升整體健康、非針對單一疾病的作為。'],['危險因子控制','Risk factor modification','以行為或藥物降低如高血壓、高血脂、糖尿病等危險因子。']],
+ when:'<b>這是整個 Section 3 的地圖。</b>拿到任何一個健康問題，先問：對象在自然史的哪個階段？據此決定用初段、次段或三段預防，再挑具體方法。',
+ examples:[['降膽固醇的層級取決於有無疾病','在「沒有冠心病」的人身上降低膽固醇＝初段預防（控制危險因子）；若病人已有疾病過程則屬次段。層級由疾病階段決定，不是由做什麼決定。 <span class="pg">p.213</span>'],['健康的社會決定','教育、收入、居住環境等社會因素深刻影響健康結果，預防須跨越診間。 <span class="pg">p.209</span>'],['預防的經濟性','在論責醫療組織 (ACO) 等制度下，預防是否符合成本效益變得更重要。 <span class="pg">p.208</span>']]},
+ch15:{num:15,title:'初段預防的方法：健康促進與疾病預防',en:'Methods of Primary Prevention',pages:'p.222–236',
+ goals:['區分「健康促進」與「特定保護」兩大初段預防途徑。','理解行為因素在健康促進中的核心地位與行為改變的困難。','認識化學預防 (chemoprophylaxis) 與危險因子藥物治療的角色。','了解社會與環境層面對初段預防的貢獻。'],
+ terms:[['健康促進','Health promotion','提升一般健康、非針對特定疾病，如營養、運動、戒菸、壓力管理。'],['特定保護','Specific protection','針對特定疾病的預防，如疫苗、化學預防。'],['行為改變','Behavior change','多數初段預防須改變生活習慣，是最有效但最困難的一環。'],['化學預防','Chemoprophylaxis','用藥物預防疾病，如高風險者低劑量阿斯匹靈。'],['危險因子篩檢','Risk factor screening','檢測膽固醇、血壓等危險因子以便早期介入（屬初段）。'],['風險評估','Risk assessment','評估個人罹病風險以規劃個別化的健康促進。'],['社會層面貢獻','Society’s contribution','清潔飲水、安全食品、政策等群體層面對健康的基礎作用。']],
+ when:'<b>當對象「還沒生病」，你想降低他未來罹病的機會時。</b>一般人用健康促進（衛教、生活型態）；針對特定疾病用特定保護（疫苗、化學預防、危險因子藥物）。',
+ examples:[['低劑量阿斯匹靈化學預防','對特定高風險族群使用低劑量阿斯匹靈，是化學預防（初段特定保護）的例子。 <span class="pg">p.213, 231</span>'],['危險因子藥物屬初段','在尚未罹病者身上以藥物控制高血壓、高血脂、糖尿病，屬初段預防。 <span class="pg">p.213</span>'],['行為因素最關鍵也最難','戒菸、飲食、運動等行為改變成效最大，卻也最難持續。 <span class="pg">p.222</span>']]},
+ch16:{num:16,title:'次段預防的原理與實務',en:'Principles and Practice of Secondary Prevention',pages:'p.237–248',
+ goals:['掌握族群篩檢的目標與三大最低要求（疾病、檢驗、醫療體系）。','理解篩檢的效益與傷害，以及倫理考量。','辨識篩檢研究中的三大偏差：選擇、前導時間、長度偏差。','了解個別篩檢/病例發現與多重篩檢的概念。'],
+ terms:[['族群篩檢','Population screening','在無症狀人群中系統性偵測疾病或危險因子。'],['最低要求·疾病','Disease requirements','疾病須夠嚴重、有可偵測的臨床前期、且早治有效。'],['最低要求·檢驗','Screening test requirements','檢驗須夠敏感/特異、安全、可接受、成本合理。'],['最低要求·體系','Health care system requirements','須有陽性者後續診斷與治療的資源與可近性。'],['前導時間偏差','Lead-time bias','篩檢只是「提早診斷」，看似延長存活其實未真正延命。'],['長度偏差','Length bias','篩檢較易抓到進展慢、預後好的病例，高估篩檢效益。'],['選擇偏差','Selection bias','自願受檢者常與一般人不同（如高風險或更健康），影響推論。'],['多重篩檢','Multiphasic screening','一次同時篩檢多種疾病。'],['病例發現','Case finding','在因其他原因就醫者身上順帶篩檢（機會性）。']],
+ when:'<b>當你要決定「某疾病該不該推行篩檢」時。</b>用三大最低要求檢核（可用本頁的篩檢檢核工具）；解讀篩檢能否延命時，務必排除前導時間與長度偏差。',
+ examples:[['火災比喻的三大要求','疾病＝是否真有火（值得偵測）、檢驗＝煙霧偵測器準不準、醫療體系＝警報響後有沒有人來滅火。任一不符，大規模篩檢就可能不恰當。 <span class="pg">p.237–239</span>'],['四個篩檢範例的評比','課本用高血壓、高膽固醇、子宮頸癌、卵巢癌四個例子，對照三大要求的符合度（Table 16.2）。 <span class="pg">p.239</span>'],['前導時間偏差','早期診斷讓「從診斷到死亡」的時間變長，但死亡時點未必延後——存活看似變長是假象。 <span class="pg">p.240</span>']]},
+ch17:{num:17,title:'三段預防的方法',en:'Methods of Tertiary Prevention',pages:'p.249–260',
+ goals:['區分疾病 (disease)、失能 (disability)、病痛 (illness) 的概念。','理解三段預防的兩大任務：失能限制與復健。','認識心血管疾病等常見疾病的三段預防作為。','了解疾病感受 (disease perceptions) 對復健的影響。'],
+ terms:[['疾病 vs 病痛','Disease vs Illness','疾病是生物病理狀態；病痛是病人主觀的經驗與感受。'],['失能','Disability','因疾病造成的功能受限。'],['失能限制','Disability limitation','在「早期症狀」階段積極治療，阻止疾病惡化、避免併發症與失能。'],['復健','Rehabilitation','在「晚期/已失能」階段恢復最大功能、提升生活品質、重返社會。'],['疾病感受','Disease perceptions','病人對自身疾病的認知與態度，影響治療遵從與復原。'],['心臟復健','Cardiac rehabilitation','心血管疾病後的運動與生活型態復健方案。']],
+ when:'<b>當疾病「已經出現症狀」時。</b>早期症狀者的目標是限制失能（積極治療、防併發症）；晚期或已失能者的目標是復健、恢復功能。',
+ examples:[['早期症狀→失能限制','疾病剛出現症狀時，積極治療以阻止惡化、避免留下失能，屬三段預防的失能限制。 <span class="pg">p.250</span>'],['晚期→復健','已造成功能損失者，以復健恢復最大可能功能並重返社會。 <span class="pg">p.250</span>'],['心血管疾病的三段預防','心肌梗塞後的評估、治療與心臟復健，是三段預防的具體實踐。 <span class="pg">p.250</span>']]},
+ch18:{num:18,title:'制定臨床預防服務的建議',en:'Developing Recommendations for Clinical Preventive Services',pages:'p.261–270',
+ goals:['認識美國預防服務工作小組 (USPSTF) 的任務與方法。','理解「淨效益 (net benefit) = 效益 − 傷害」如何轉為 A–D、I 等級。','會解讀各等級的臨床意義與是否常規提供。','了解實證等級對臨床預防決策的影響。'],
+ terms:[['USPSTF','U.S. Preventive Services Task Force','獨立專家小組，系統性評估並建議臨床預防服務。'],['淨效益','Net benefit','某預防服務在一般基層人群實施時的效益減去傷害。'],['等級 A','Grade A','高確定性、效益大 → 強烈建議提供。'],['等級 B','Grade B','高確定性中等效益（或中確定性中到大效益）→ 建議提供。'],['等級 C','Grade C','效益小，依個別情況選擇性提供。'],['等級 D','Grade D','無效益或傷害大於效益 → 建議「不要」提供。'],['等級 I','Grade I (Insufficient)','證據不足，無法判斷效益與傷害的平衡。'],['確定性','Certainty','對淨效益估計的可信程度（高/中/低）。']],
+ when:'<b>當你要判斷「某項預防服務該不該做」時。</b>看 USPSTF 等級：A、B 鼓勵提供；C 選擇性；D 建議不要做；I 表示證據不足需個別判斷。',
+ examples:[['A、B 鼓勵；C、D、I 不常規提供','A、B 級服務強烈鼓勵；C、D、I 不常規提供，但意義不同——A、B、D 是「相當確定」效益或傷害的方向，C 是效益小，I 是證據不足。 <span class="pg">p.262</span>'],['淨效益轉成字母等級','工作小組先判斷淨效益大小（大/中/小/零/傷害大於效益），再結合確定性給出 A–D、I。 <span class="pg">p.262（Table 18.2/18.3）</span>'],['乳癌篩檢的等級差異','不同年齡層的乳癌篩檢因效益大小不同而有不同等級，示範等級如何依人群變動。 <span class="pg">p.262</span>']]},
+ch19:{num:19,title:'慢性病預防',en:'Chronic Disease Prevention',pages:'p.271–283',
+ goals:['認識慢性病的人力與財務負擔及其共同致病機轉。','理解慢性病的「可預防性」與共同危險因子。','掌握針對特定慢性病（如心血管、糖尿病、癌症）的預防策略。','了解慢性病預防橫跨初、次、三段。'],
+ terms:[['慢性病','Chronic disease','病程長、多因、常不可治癒的疾病，如心血管病、糖尿病、癌症。'],['共同致病機轉','Common pathogenesis','多種慢性病共享的機轉，如發炎、代謝異常。'],['共同危險因子','Shared risk factors','吸菸、不良飲食、缺乏運動、肥胖等同時推升多種慢性病。'],['可預防性','Preventability','大部分慢性病可透過控制共同危險因子而預防。'],['危險因子聚集','Risk factor clustering','多個危險因子常同時出現、彼此加乘（如代謝症候群）。']],
+ when:'<b>規劃慢性病防治或個人保健時。</b>因為多種慢性病共享危險因子，針對吸菸、飲食、運動、體重等做初段預防，能一次降低多種疾病風險，效益最高。',
+ examples:[['共同危險因子的槓桿','吸菸、不健康飲食、久坐、肥胖同時推升心血管病、糖尿病與多種癌症；改善這些能一次預防多病。 <span class="pg">p.272</span>'],['慢性病的雙重負擔','慢性病造成龐大的人力（失能、死亡）與財務（醫療支出）負擔。 <span class="pg">p.271–272</span>'],['橫跨三段的防治','慢性病防治同時包含初段（危險因子）、次段（篩檢）、三段（併發症控制與復健）。 <span class="pg">p.273</span>']]},
+ch20:{num:20,title:'傳染病預防',en:'Prevention of Infectious Diseases',pages:'p.284–300',
+ goals:['了解傳染病的疾病負擔與公共衛生優先項目（HIV、結核等）。','掌握免疫接種原理、疫苗種類與群體免疫 (herd immunity)。','認識傳染病預防的多層次策略（個人、環境、政策）。','理解正確病史對傳染病診斷與防治的重要。'],
+ terms:[['群體免疫','Herd immunity','當足夠比例人口具免疫力時，未免疫者也間接受保護。'],['疫苗種類','Types of vaccines','去活化（killed）、活性減毒（live attenuated）、類毒素（toxoid）等。'],['減毒活疫苗','Live attenuated vaccine','用減弱的活病原，免疫反應強但需注意免疫低下者。'],['類毒素','Toxoid','以去活化的細菌外毒素製成（如破傷風）。'],['主動 vs 被動免疫','Active vs Passive immunity','自身產生抗體 vs 直接給予抗體（如免疫球蛋白）。'],['公共衛生優先','Public health priorities','如 HIV/AIDS、結核病等高負擔傳染病的防治重點。']],
+ when:'<b>面對傳染病防治時。</b>核心是免疫接種與群體免疫，加上環境衛生與政策；提高疫苗覆蓋率可保護無法接種者。',
+ examples:[['群體免疫的保護','當接種率夠高，病原難以在人群中傳播，連未接種者也受保護。 <span class="pg">p.291（Fig.1.2 引用）</span>'],['疫苗三大類','去活化、活性減毒、類毒素各有優缺，減毒疫苗免疫強但對免疫低下者需謹慎。 <span class="pg">p.291</span>'],['正確病史的價值','詳實的旅遊、接觸、接種史對傳染病診斷與防治至關重要。 <span class="pg">p.287</span>']]},
+ch21:{num:21,title:'心理健康與行為問題的預防',en:'Prevention of Mental Health and Behavior Problems',pages:'p.301–313',
+ goals:['認識常見精神疾病與物質使用障礙的定義。','了解自殺等行為問題的預防切入點。','理解心理健康預防同樣可分初、次、三段。','認識早期辨識與介入的重要性。'],
+ terms:[['情緒障礙','Emotional disorders','如憂鬱、焦慮等常見精神健康問題。'],['思覺失調症','Schizophrenia','嚴重的精神疾病，需長期治療與支持。'],['物質使用障礙','Substance use disorders','酒精、藥物等成癮相關障礙。'],['自殺預防','Suicide prevention','辨識高風險者、限制致命工具可近性、及早介入。'],['早期辨識','Early identification','及早發現心理問題以利次段預防。'],['心理健康促進','Mental health promotion','提升心理韌性與支持系統的初段預防。']],
+ when:'<b>規劃心理健康防治時。</b>初段＝促進心理韌性與減少危險因子；次段＝早期辨識與篩檢（如憂鬱、物質使用）；三段＝治療與復元，降低復發與失能。',
+ examples:[['自殺的多重切入點','自殺預防涵蓋辨識高風險者、限制致命手段可近性與危機介入。 <span class="pg">p.302</span>'],['物質使用障礙的預防','從減少起始使用（初段）到早期篩檢與治療（次、三段）。 <span class="pg">p.302</span>'],['心理健康分三段','心理疾病預防同樣可套用初、次、三段架構。 <span class="pg">p.301</span>']]},
+ch22:{num:22,title:'職業醫學與環境衛生',en:'Occupational Medicine and Environmental Health',pages:'p.314–324',
+ goals:['辨識職場與環境中的物理、化學與生物性危害。','理解暴露與健康效應的劑量關係與控制層級。','認識職業病史在診斷中的角色。','了解環境暴露對族群健康的長期影響。'],
+ terms:[['物理性危害','Physical hazards','輻射、噪音、高低溫等。'],['化學性危害','Chemical hazards','溶劑、金屬、礦物粉塵等。'],['生物性危害','Biological hazards','職場中的感染性病原。'],['劑量-反應','Dose-response','暴露量與健康損害之間的關係。'],['控制層級','Hierarchy of controls','消除、取代、工程控制、行政管理、個人防護的優先順序。'],['職業病史','Occupational history','詢問工作暴露以協助診斷職業相關疾病。'],['環境衛生','Environmental health','空氣、水、土壤等環境暴露對健康的影響。']],
+ when:'<b>當疾病可能與工作或環境暴露有關時。</b>詳問職業與環境暴露史；預防上優先採「源頭消除/工程控制」，個人防護具是最後一道防線。',
+ examples:[['物理、化學、生物三類危害','輻射與噪音（物理）、溶劑與金屬粉塵（化學）、感染源（生物）是職場危害的主要分類。 <span class="pg">p.314</span>'],['職業病史的關鍵','一句「你的工作會接觸什麼？」常是揪出職業病的關鍵。 <span class="pg">p.314（章節架構）</span>'],['控制層級','源頭消除與工程控制優先於個人防護具。 <span class="pg">p.314–318</span>']]},
+ch23:{num:23,title:'傷害預防',en:'Injury Prevention',pages:'p.325–334',
+ goals:['認識傷害的定義與龐大的疾病負擔。','掌握 Haddon 矩陣：以三階段 × 三因子分析傷害。','理解車禍與槍傷等主要傷害的預防策略。','了解主動 vs 被動防護的差異。'],
+ terms:[['傷害','Injury','由能量（機械、熱、化學等）造成的身體損害，多可預防。'],['Haddon 矩陣','Haddon Matrix','以「傷前 / 傷中 / 傷後」三階段 × 「人 / 媒介(車輛) / 環境」三因子分析與介入。'],['傷前階段','Pre-injury phase','事件發生前，目標是預防事件（如酒駕防制、路況）。'],['傷中階段','Injury phase','事件當下，目標是減少受傷（如安全帶、安全氣囊）。'],['傷後階段','Post-injury phase','事件後，目標是減少後果（如急救、外傷系統）。'],['被動防護','Passive protection','不需個人主動配合即生效（如安全氣囊），通常更有效。'],['主動防護','Active protection','需個人每次主動採取（如繫安全帶）。']],
+ when:'<b>設計任何傷害防治方案時。</b>用 Haddon 矩陣系統性盤點：傷前、傷中、傷後 × 人、車、環境，找出所有可介入點；被動防護通常比依賴個人行為的主動防護更有效。',
+ examples:[['車禍的 Haddon 矩陣','以傷前/傷中/傷後 × 人/車/環境九宮格分析車禍，涵蓋酒駕、安全帶、氣囊、外傷急救等介入。 <span class="pg">p.326–328</span>'],['被動防護較有效','安全氣囊（被動、自動生效）通常比需每次繫上的安全帶（主動）更能可靠減害。 <span class="pg">p.326</span>'],['槍傷的公衛取向','槍傷被視為可研究、可介入的公共衛生議題（流行病學、政策）。 <span class="pg">p.328–329</span>']]}
+};
+
+const QUIZ={
+ch14:[
+ ['預防的「層級」（初/次/三段）主要由什麼決定？',['醫師的偏好','疾病在自然史中的階段','醫院規模','檢驗費用'],1,'層級由疾病走到哪個階段決定，而非由做什麼決定。'],
+ ['在「沒有冠心病」的人身上降低膽固醇，屬於？',['次段預防','三段預防','初段預防','復健'],2,'對尚未罹病者控制危險因子＝初段預防。'],
+ ['「健康的社會決定因素」不包含？',['教育','收入','居住環境','血型基因序列'],3,'社會決定因素指社經與環境條件，非個別基因。'],
+ ['次段預防的前提是？',['對象完全健康','體內已有疾病過程但尚無症狀','疾病已末期','已經死亡'],1,'次段預防針對無症狀的疾病期。'],
+ ['三段預防發生在？',['疾病發生前','無症狀期','疾病已有症狀後','出生前'],2,'三段預防在疾病出現症狀之後。'],
+ ['疫苗接種屬於哪一層級？',['初段（特定保護）','次段','三段','都不是'],0,'疫苗是初段預防中的特定保護。'],
+ ['預防醫學相對於傳統醫學的補強在於？',['只重手術','強調促進健康與預防疾病失能','只看檢驗數據','忽略族群'],1,'預防醫學補足偏重診斷治療的傳統取向。'],
+ ['疾病自然史的正確順序是？',['臨床期→易感→結局','易感→臨床前期→臨床期→結局','結局→臨床期','無順序'],1,'自然史依易感、臨床前、臨床、結局發展。'],
+ ['為何預防的「經濟性」愈受重視？',['醫師變多','健康體系須為群體健康負財務責任','疫苗變貴','人口變少'],1,'ACO 等制度使成本效益更受關注。'],
+ ['健康促進 (health promotion) 的特徵是？',['只針對單一疾病','提升整體健康、非針對特定疾病','等於復健','只用藥物'],1,'健康促進提升一般健康，非疾病特異。']
+],
+ch15:[
+ ['初段預防的兩大途徑是？',['篩檢與復健','健康促進與特定保護','失能限制與復健','診斷與治療'],1,'初段＝健康促進＋特定保護。'],
+ ['低劑量阿斯匹靈用於高風險者屬於？',['復健','化學預防 chemoprophylaxis','篩檢','失能限制'],1,'以藥物預防疾病＝化學預防（初段特定保護）。'],
+ ['對尚未罹病者用藥控制高血壓、高血脂屬於？',['初段預防','次段預防','三段預防','病例發現'],0,'對未病者控制危險因子屬初段。'],
+ ['健康促進中最有效卻最難的一環是？',['開藥','行為改變（戒菸、飲食、運動）','手術','住院'],1,'行為改變成效大但最難持續。'],
+ ['疫苗接種屬於初段預防的？',['健康促進','特定保護','篩檢','復健'],1,'疫苗針對特定疾病＝特定保護。'],
+ ['「特定保護」與「健康促進」最大差別是？',['費用','是否針對特定疾病','是否住院','是否需檢驗'],1,'特定保護針對特定疾病，健康促進針對整體健康。'],
+ ['危險因子篩檢（如量血壓、驗膽固醇）在尚未罹病者屬於？',['三段','次段','初段','復健'],2,'對未病者偵測危險因子以便介入，屬初段。'],
+ ['社會層面對初段預防的貢獻例子是？',['個別開藥','清潔飲水與安全食品','心臟復健','外傷急救'],1,'群體層面的環境衛生與政策是初段基礎。'],
+ ['風險評估 (risk assessment) 的目的是？',['診斷末期病','評估個人罹病風險以規劃個別化預防','計算死亡率','取代疫苗'],1,'風險評估協助個別化的健康促進。'],
+ ['下列何者「不是」初段預防？',['戒菸衛教','接種疫苗','對無症狀高膽固醇者篩檢後早期治療已存在的疾病','低劑量阿斯匹靈'],2,'針對已存在（無症狀）疾病的偵測與早治屬次段。']
+],
+ch16:[
+ ['族群篩檢的三大最低要求是？',['費用、時間、人力','疾病、檢驗、醫療體系','敏感度、特異度、PPV','初段、次段、三段'],1,'三大要求：疾病、檢驗、醫療體系。'],
+ ['課本用什麼比喻篩檢的三大要求？',['交通號誌','火災與煙霧偵測器','天氣預報','棋局'],1,'火災＝疾病、煙霧偵測器＝檢驗、滅火回應＝醫療體系。'],
+ ['「疾病條件」要求疾病必須？',['非常罕見','有可偵測的臨床前期且早治有效','沒有症狀期','無法治療'],1,'疾病須有可偵測的無症狀期且早期治療有效。'],
+ ['前導時間偏差 (lead-time bias) 的意思是？',['篩檢讓人更早死','早診斷使存活「看似」延長，實際未延命','檢驗太貴','抓到太多病例'],1,'只是提早診斷，存活看似變長是假象。'],
+ ['長度偏差 (length bias) 使篩檢？',['低估效益','偏向抓到進展慢、預後好的病例而高估效益','無偏差','只影響費用'],1,'篩檢較易抓到緩慢進展的病例，膨脹看似效益。'],
+ ['若「醫療體系條件」不符（陽性者無後續資源），則？',['仍應大規模篩檢','大規模篩檢可能不恰當','改用三段預防','忽略即可'],1,'任一要求未達，大規模篩檢就可能不恰當。'],
+ ['篩檢屬於哪一層級預防？',['初段','次段','三段','都不是'],1,'篩檢＝次段預防。'],
+ ['多重篩檢 (multiphasic screening) 指的是？',['重複篩檢同一病','一次同時篩檢多種疾病','只篩檢基因','復健項目'],1,'一次同時篩檢多種疾病。'],
+ ['自願受檢者常與一般人不同，造成？',['前導時間偏差','選擇偏差','長度偏差','測量偏差'],1,'自我選擇造成選擇偏差，影響推論。'],
+ ['判斷「篩檢是否真的延命」時務必排除？',['費用','前導時間與長度偏差','醫師人數','疫苗種類'],1,'須排除前導時間與長度偏差才能正確評估。']
+],
+ch17:[
+ ['三段預防的兩大任務是？',['健康促進與特定保護','失能限制與復健','篩檢與診斷','疫苗與化學預防'],1,'三段＝失能限制＋復健。'],
+ ['「早期症狀」病人的三段預防目標是？',['復健','失能限制（阻止惡化）','篩檢','疫苗'],1,'早期症狀→失能限制。'],
+ ['「晚期/已失能」病人的目標是？',['失能限制','復健','初段預防','病例發現'],1,'晚期→復健，恢復最大功能。'],
+ ['「疾病 (disease)」與「病痛 (illness)」的差別是？',['完全相同','疾病是生物病理狀態；病痛是主觀經驗','病痛較輕','疾病不需治療'],1,'disease＝病理狀態；illness＝主觀經驗。'],
+ ['心臟復健屬於哪一層級？',['初段','次段','三段','都不是'],2,'復健屬三段預防。'],
+ ['失能限制 (disability limitation) 的核心是？',['等待疾病自然好','積極治療阻止惡化、避免併發症與失能','只做篩檢','接種疫苗'],1,'在早期症狀期積極治療以限制失能。'],
+ ['三段預防的前提是？',['對象健康','疾病尚無症狀','疾病已有症狀','尚未出生'],2,'三段預防在疾病已症狀化後。'],
+ ['疾病感受 (disease perceptions) 會影響？',['檢驗費用','治療遵從與復原','疫苗種類','人口數'],1,'病人對疾病的認知影響遵從與復健。'],
+ ['復健 (rehabilitation) 的目標是？',['預防疾病發生','恢復最大功能、重返社會','篩檢無症狀者','降低盛行率'],1,'復健著重恢復功能與生活品質。'],
+ ['下列何者屬三段預防？',['接種流感疫苗','子宮頸抹片','中風後的復健治療','驗血壓'],2,'中風後復健＝三段預防。']
+],
+ch18:[
+ ['USPSTF 的角色是？',['販售疫苗','系統性評估並建議臨床預防服務','治療病人','製造檢驗'],1,'USPSTF 是評估與建議預防服務的專家小組。'],
+ ['「淨效益 (net benefit)」定義為？',['效益 + 傷害','效益 − 傷害','效益 × 費用','傷害 ÷ 效益'],1,'net benefit＝效益減傷害。'],
+ ['等級 A 代表？',['建議不要做','高確定性、效益大 → 強烈建議','證據不足','效益小'],1,'A＝高確定性效益大，強烈建議。'],
+ ['等級 D 代表？',['強烈建議提供','建議「不要」提供（無益或有害）','選擇性提供','證據不足'],1,'D＝不建議提供。'],
+ ['等級 I 代表？',['效益大','證據不足，無法判斷效益與傷害平衡','建議不要','效益小'],1,'I＝Insufficient，證據不足。'],
+ ['A、B 級服務的臨床處置是？',['不要提供','強烈鼓勵/建議提供','忽略','僅研究用'],1,'A、B 級鼓勵常規提供。'],
+ ['等級 C 的特徵是？',['效益大','效益小，依個別情況選擇性提供','有害','證據不足'],1,'C＝效益小，選擇性提供。'],
+ ['字母等級是由什麼推導出的？',['費用高低','淨效益大小結合確定性','醫師人數','疫苗種類'],1,'先評淨效益大小，再結合確定性給等級。'],
+ ['為何同一篩檢在不同年齡層可能等級不同？',['隨機','因效益大小隨人群而不同','因醫師偏好','因季節'],1,'淨效益隨人群改變，等級也隨之不同（如乳癌篩檢）。'],
+ ['A、B、D 與 C、I 的關鍵差異在於？',['費用','A/B/D 對效益或傷害方向相當確定；C 效益小、I 證據不足','沒有差異','都不提供'],1,'A/B/D 方向確定，C 效益小，I 證據不足。']
+],
+ch19:[
+ ['多種慢性病常「共享」什麼？',['同一病原菌','共同危險因子（吸菸、飲食、久坐、肥胖）','同一基因','同一藥物'],1,'慢性病共享共同危險因子。'],
+ ['針對共同危險因子做初段預防的好處是？',['只防一種病','能一次降低多種慢性病風險','增加費用','無效'],1,'改善共同危險因子可一次預防多病。'],
+ ['慢性病的特徵是？',['病程短、可治癒','病程長、多因、常不可治癒','只影響兒童','傳染性強'],1,'慢性病病程長、多因、常不可治癒。'],
+ ['代謝症候群反映了？',['單一危險因子','多個危險因子聚集加乘','傳染病','急性中毒'],1,'危險因子聚集（clustering）彼此加乘。'],
+ ['慢性病防治可橫跨？',['只有初段','初、次、三段','只有三段','都不需要'],1,'慢性病防治涵蓋三段。'],
+ ['慢性病的「雙重負擔」指？',['人力與財務','時間與空間','疫苗與藥物','醫師與護理'],0,'指龐大的人力（失能死亡）與財務負擔。'],
+ ['下列何者是慢性病最重要的可控危險因子之一？',['血型','吸菸','身高','出生地'],1,'吸菸是可預防的主要危險因子。'],
+ ['「可預防性 (preventability)」對慢性病的意涵是？',['無法預防','大部分可透過控制危險因子預防','只能靠手術','只能靠疫苗'],1,'多數慢性病可經危險因子控制而預防。'],
+ ['同時改善飲食、運動、戒菸屬於？',['三段預防','針對共同危險因子的初段預防','篩檢','復健'],1,'針對共同危險因子的生活型態改善屬初段。'],
+ ['慢性病與傳染病在預防策略上的差異之一是？',['慢性病更靠疫苗','慢性病更強調長期危險因子與生活型態','慢性病不需預防','傳染病無法預防'],1,'慢性病預防更倚重長期危險因子管理。']
+],
+ch20:[
+ ['群體免疫 (herd immunity) 的意思是？',['每個人都免疫','足夠比例免疫時未免疫者也受間接保護','疫苗無效','只保護接種者'],1,'高免疫比例使病原難傳播，間接保護未免疫者。'],
+ ['減毒活疫苗 (live attenuated) 的特點是？',['用死病原','用減弱的活病原，免疫強但免疫低下者需謹慎','是類毒素','不含抗原'],1,'減毒活疫苗免疫反應強，但對免疫低下者需注意。'],
+ ['類毒素 (toxoid) 疫苗是用什麼製成？',['活病毒','去活化的細菌外毒素','抗生素','抗體'],1,'toxoid＝去活化的細菌外毒素（如破傷風）。'],
+ ['被動免疫 (passive immunity) 指？',['自身產生抗體','直接給予現成抗體（如免疫球蛋白）','接種活疫苗','群體免疫'],1,'被動免疫是直接給抗體，非自身產生。'],
+ ['提高疫苗覆蓋率能保護？',['只有接種者','包含無法接種者（透過群體免疫）','只有醫護','沒有人'],1,'高覆蓋率藉群體免疫保護無法接種者。'],
+ ['傳染病防治屬於哪一層級（疫苗接種）？',['初段','次段','三段','都不是'],0,'接種疫苗＝初段特定保護。'],
+ ['公共衛生優先的高負擔傳染病例子是？',['骨折','HIV/AIDS、結核病','近視','蛀牙'],1,'HIV/AIDS、結核是公衛優先項目。'],
+ ['正確病史對傳染病的價值在於？',['計算費用','協助診斷與防治（旅遊、接觸、接種史）','取代疫苗','無關緊要'],1,'接觸/旅遊/接種史對診斷防治關鍵。'],
+ ['主動免疫 (active immunity) 的例子是？',['注射免疫球蛋白','接種疫苗後自身產生抗體','輸血','無'],1,'接種疫苗使自身產生抗體＝主動免疫。'],
+ ['疫苗抗原做成「無細胞 (acellular)」的目的是？',['增加費用','減少副作用','提高傳染力','取代群體免疫'],1,'無細胞製備可降低不良反應風險。']
+],
+ch21:[
+ ['心理健康預防可分為？',['只有一種','初、次、三段','只有藥物','只有住院'],1,'心理健康預防同樣分三段。'],
+ ['自殺預防的策略之一是？',['增加致命工具可近性','限制致命手段的可近性','忽略高風險者','停止介入'],1,'限制致命手段可近性是重要策略。'],
+ ['早期辨識心理問題主要服務於哪一層級？',['初段','次段','三段','都不是'],1,'早期辨識與篩檢屬次段預防。'],
+ ['物質使用障礙 (substance use disorder) 指？',['營養不良','酒精、藥物等成癮相關障礙','骨質疏鬆','高血壓'],1,'指成癮相關障礙。'],
+ ['提升心理韌性與支持系統屬於？',['三段','次段','初段（心理健康促進）','復健'],2,'促進韌性與支持＝初段。'],
+ ['思覺失調症 (schizophrenia) 的特徵是？',['短暫感冒','嚴重、需長期治療與支持的精神疾病','營養問題','傳染病'],1,'思覺失調症為嚴重精神疾病。'],
+ ['心理疾病的三段預防目標是？',['預防發生','早期辨識','治療與復元、降低復發與失能','篩檢'],2,'三段＝治療與復元、減少復發失能。'],
+ ['對物質使用「減少起始使用」屬於？',['三段','次段','初段','復健'],2,'減少起始使用＝初段預防。'],
+ ['情緒障礙 (emotional disorders) 常見包含？',['憂鬱、焦慮','骨折','高血脂','中風'],0,'憂鬱、焦慮屬情緒障礙。'],
+ ['心理健康預防成功的關鍵之一是？',['忽視早期徵兆','及早辨識與介入','等到末期','只靠住院'],1,'及早辨識與介入可改善預後。']
+],
+ch22:[
+ ['職場危害的三大分類是？',['初、次、三段','物理、化學、生物','人、車、環境','A、B、C'],1,'物理、化學、生物性危害。'],
+ ['輻射與噪音屬於哪類危害？',['化學','物理','生物','心理'],1,'輻射、噪音、溫度＝物理性危害。'],
+ ['溶劑與金屬粉塵屬於？',['物理','化學','生物','社會'],1,'溶劑、金屬、礦物粉塵＝化學性危害。'],
+ ['「劑量-反應 (dose-response)」描述？',['費用與時間','暴露量與健康損害的關係','人口與面積','疫苗與抗體'],1,'暴露量與健康效應的關係。'],
+ ['控制危害的優先順序（控制層級）最優先是？',['個人防護具','源頭消除/取代與工程控制','行政管理','忽略'],1,'源頭消除與工程控制優先於個人防護具。'],
+ ['職業病史 (occupational history) 的用途是？',['計算薪水','協助診斷職業相關疾病','取代檢驗','無用'],1,'職業暴露史是揪出職業病的關鍵。'],
+ ['個人防護具 (PPE) 在控制層級中的地位是？',['最優先','最後一道防線','唯一方法','不需要'],1,'PPE 是最後一道防線。'],
+ ['環境衛生關注的暴露來源包含？',['空氣、水、土壤','只有食物','只有噪音','只有輻射'],0,'環境衛生涵蓋空氣、水、土壤等。'],
+ ['職業與環境疾病預防的核心思維是？',['等生病再治','辨識暴露並在源頭控制','只靠個人','忽略'],1,'辨識暴露、源頭控制是核心。'],
+ ['生物性職場危害的例子是？',['溶劑','噪音','感染性病原','高溫'],2,'職場中的感染源＝生物性危害。']
+],
+ch23:[
+ ['Haddon 矩陣的兩個維度是？',['費用 × 時間','三階段（傷前/傷中/傷後）× 三因子（人/媒介/環境）','初/次/三段','A/B/C'],1,'Haddon 矩陣＝三階段 × 三因子。'],
+ ['安全帶、安全氣囊屬於 Haddon 的哪個階段？',['傷前','傷中（injury phase）','傷後','與矩陣無關'],1,'減少事件當下受傷＝傷中階段。'],
+ ['外傷急救、外傷系統屬於哪個階段？',['傷前','傷中','傷後（post-injury）','與矩陣無關'],2,'減少事件後果＝傷後階段。'],
+ ['酒駕防制、改善路況屬於哪個階段？',['傷前（pre-injury）','傷中','傷後','無'],0,'預防事件發生＝傷前階段。'],
+ ['被動防護 (passive protection) 的特點是？',['需每次主動配合','不需個人主動配合即生效，通常更有效','較無效','只靠教育'],1,'被動防護自動生效、通常更可靠有效。'],
+ ['安全氣囊 vs 安全帶，前者屬於？',['主動防護','被動防護','無防護','傷後處置'],1,'氣囊自動作動＝被動防護。'],
+ ['傷害 (injury) 的本質是？',['隨機不可預防','由能量造成、且多可預防的損害','傳染病','老化'],1,'傷害由能量造成，多數可預防。'],
+ ['槍傷在公共衛生取向下被視為？',['純政治議題','可研究、可介入的公衛議題','不可研究','個人問題'],1,'槍傷以流行病學與政策角度介入。'],
+ ['Haddon 矩陣的最大價值在於？',['計算費用','系統性找出所有可介入點','取代法律','診斷疾病'],1,'系統性盤點各階段各因子的介入機會。'],
+ ['依 Haddon 思維，若要可靠減害，通常優先？',['依賴個人每次正確行為','設計被動、自動生效的防護','完全靠教育','不介入'],1,'被動防護比依賴個人行為更可靠。']
+]
+};
+
+function renderChapter(key){
+  const c=CH[key],quiz=QUIZ[key],L=['A','B','C','D','E'];
+  const termsHtml=c.terms.map(t=>`<div class="term"><div class="t-name">${t[0]} <span class="en">${t[1]}</span></div><div class="t-def">${t[2]}</div></div>`).join('');
+  const goalsHtml=c.goals.map(g=>`<li>${g}</li>`).join('');
+  const exHtml=c.examples.map(e=>`<div class="ex"><b>📌 ${e[0]}</b><br>${e[1]}</div>`).join('');
+  const quizHtml=quiz.map((q,i)=>{
+    const choices=q[1].map((ch,j)=>`<label class="choice" data-correct="${j===q[2]}" onclick="answer(this,'${key}',${i})"><span class="k">${L[j]}</span>${ch}</label>`).join('');
+    return `<div class="qitem" data-q="${i}"><div class="qq"><span class="n">${i+1}</span>${q[0]}</div>${choices}
+      <div class="explain"><b>✔ 正解：${L[q[2]]}。</b> ${q[3]}</div></div>`;
+  }).join('');
+  document.getElementById('view-'+key).innerHTML=`
+   <div class="card handout">
+     <button class="print-btn no-print" onclick="printOne('${key}')">🖨 匯出本章講義 PDF</button>
+     <h2 class="title">第 ${c.num} 章　${c.title}</h2>
+     <div class="sub"><span class="en">${c.en}</span> <span class="pg">${c.pages}</span></div>
+     <div class="goal-box"><b>🎯 學習目標 Learning Objectives</b><ul class="clean">${goalsHtml}</ul></div>
+     <h3 class="sec"><span class="em">📖</span>重要名詞 Key Terms</h3>${termsHtml}
+     <h3 class="sec"><span class="em">🕐</span>應用時機 When to Apply</h3><div class="when">${c.when}</div>
+     <h3 class="sec"><span class="em">💡</span>書中例子 Examples from the Book</h3>${exHtml}
+   </div>
+   <div class="card quiz-card no-print">
+     <div class="quiz-head"><h3 class="sec" style="border:0;margin:0"><span class="em">📝</span>理解測驗（10 題）Self-Test</h3>
+       <div class="score" id="score-${key}">作答進度 0 / 10　得分 0</div></div>
+     <p class="sub">點選答案即可立即看到對錯與詳解。</p>${quizHtml}
+   </div>`;
+}
+Object.keys(CH).forEach(renderChapter);
+
+const qs={};
+function answer(el,key,qi){
+  const item=el.closest('.qitem'); if(item.dataset.done) return; item.dataset.done='1';
+  const correct=el.dataset.correct==='true';
+  item.querySelectorAll('.choice').forEach(ch=>{ch.classList.add('disabled'); if(ch.dataset.correct==='true')ch.classList.add('correct');});
+  if(!correct)el.classList.add('wrong');
+  item.querySelector('.explain').classList.add('show');
+  qs[key]=qs[key]||{done:0,score:0}; qs[key].done++; if(correct)qs[key].score++;
+  document.getElementById('score-'+key).textContent=`作答進度 ${qs[key].done} / 10　得分 ${qs[key].score}`;
+}
+function printAll(){document.body.classList.add('printing-all');window.print();}
+function printOne(key){document.body.classList.add('printing-one');document.getElementById('view-'+key).classList.add('print-target');window.print();}
+window.addEventListener('afterprint',()=>{document.body.classList.remove('printing-all','printing-one');
+  document.querySelectorAll('.print-target').forEach(e=>e.classList.remove('print-target'));});
+</script>
+<script src="assets/selectors.js"></script>
+</body>
+</html>
