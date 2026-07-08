@@ -143,59 +143,7 @@
     <h2 class="title">🎯 統計方法選擇器 <span class="pill">Choosing an Appropriate Statistical Test</span></h2>
     <p class="sub">回答下面幾個關於你資料的問題，工具會依照課本 Table 10.1（雙變項）與 Table 11.1（多變項）的邏輯，建議適當的統計方法。名詞皆附英文與白話說明。<b>先想清楚：你的「結果變項 / 依變項 (dependent / outcome variable)」是什麼？</b></p>
 
-    <div class="wizard">
-      <div class="q-block">
-        <h3>Q1. 你想分析幾個「自變項 / 預測變項」<span class="en">(independent / predictor variable)</span>？</h3>
-        <p class="hint">自變項＝你認為「可能造成影響」的那個因素（如：治療組別、年齡）。結果變項＝你關心的產出（如：血壓、存活）。</p>
-        <div class="opts" data-q="nIV">
-          <button data-v="1">只有 1 個自變項<small>雙變項分析 Bivariate（第10章）</small></button>
-          <button data-v="many">2 個以上自變項<small>多變項分析 Multivariable（第11章）</small></button>
-        </div>
-      </div>
-
-      <div class="q-block">
-        <h3>Q2. 你的「結果變項 (outcome variable)」是哪一種資料型態？</h3>
-        <p class="hint">這是決定統計方法最關鍵的一步。</p>
-        <div class="opts" data-q="dv">
-          <button data-v="cont">連續變項 Continuous<small>可測量的數值，如血壓、體重、血糖</small></button>
-          <button data-v="ord">順序變項 Ordinal<small>有順序的等第，如：很滿意 / 普通 / 不滿意</small></button>
-          <button data-v="dich">二分/名目變項 Dichotomous / Nominal<small>類別，如：存活 vs 死亡、有病 vs 無病、種族</small></button>
-          <button data-v="tte">存活/時間到事件 Time-to-event<small>關心「多久後發生某事件」，如存活時間、復發時間</small></button>
-        </div>
-      </div>
-
-      <div class="q-block" id="q3">
-        <h3>Q3. 你的「自變項 / 分組」是哪一種？</h3>
-        <div class="opts" data-q="iv">
-          <button data-v="cont">連續變項 Continuous<small>如：身高、年齡、劑量</small></button>
-          <button data-v="two">2 組類別 Two groups<small>如：治療組 vs 對照組</small></button>
-          <button data-v="multi">3 組以上類別 ≥3 groups<small>如：A藥 / B藥 / 安慰劑</small></button>
-        </div>
-      </div>
-
-      <div class="q-block" id="q4">
-        <h3>Q4. 兩組之間是「獨立」還是「配對 / 前後測」？</h3>
-        <p class="hint">同一個人測兩次（治療前 vs 治療後）、或一對一配對＝配對設計 (paired)；不同的獨立受試者＝獨立 (independent)。</p>
-        <div class="opts" data-q="paired">
-          <button data-v="indep">獨立樣本 Independent<small>兩組是不同的人</small></button>
-          <button data-v="paired">配對 / 前後測 Paired<small>同一批人測兩次，或配對比較</small></button>
-        </div>
-      </div>
-
-      <div class="q-block" id="q5">
-        <h3>Q5. 資料是否符合「常態分布」等假設，可用參數方法？</h3>
-        <p class="hint">參數方法 (parametric) 假設資料呈常態分布、樣本夠大；若資料偏斜、樣本小、或本身就是順序資料，選無母數 (nonparametric)。</p>
-        <div class="opts" data-q="param">
-          <button data-v="para">符合（用參數方法 Parametric）<small>資料近常態、樣本較大</small></button>
-          <button data-v="nonpara">不確定/不符合（用無母數 Nonparametric）<small>資料偏斜、樣本小、較保守</small></button>
-        </div>
-      </div>
-    </div>
-
-    <div id="rec" class="result empty">
-      👆 請從上方開始作答，我會即時建議適當的統計方法。
-    </div>
-    <button class="reset" onclick="resetWizard()">↺ 重新選擇</button>
+    <div data-selector="stat"></div>
   </div>
 
   <div class="card">
@@ -246,125 +194,6 @@ tabs.addEventListener('click',e=>{
   document.getElementById('view-'+b.dataset.t).classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
 });
-
-/* ============ SELECTOR LOGIC ============ */
-const state={nIV:null,dv:null,iv:null,paired:null,param:null};
-document.querySelectorAll('.opts').forEach(o=>{
-  o.addEventListener('click',e=>{
-    const b=e.target.closest('button'); if(!b)return;
-    o.querySelectorAll('button').forEach(x=>x.classList.remove('sel'));
-    b.classList.add('sel');
-    state[o.dataset.q]=b.dataset.v;
-    updateVisibility(); recommend();
-  });
-});
-function show(id,on){document.getElementById(id).style.display=on?'':'none';}
-function updateVisibility(){
-  // multivariable: hide bivariate-specific Q3/Q4/Q5 detail (still ask DV)
-  const multi = state.nIV==='many';
-  show('q3', !multi && state.dv && state.dv!=='tte');
-  // Q4 (paired vs independent) for continuous OR categorical outcome with 2 groups
-  show('q4', !multi && state.iv==='two' && (state.dv==='cont' || state.dv==='dich'));
-  // Q5 only when a nonparametric choice is meaningful (continuous or ordinal comparisons)
-  show('q5', !multi && (state.dv==='cont') && (state.iv==='two'||state.iv==='multi'));
-}
-function setRec(title,rec,alt,why){
-  const el=document.getElementById('rec');
-  el.className='result';
-  el.innerHTML=`<h3>✅ ${title}</h3><div class="rec">${rec}</div>${alt?`<div class="alt">${alt}</div>`:''}<div class="why">${why}</div>`;
-}
-function recommend(){
-  const s=state;
-  if(!s.nIV||!s.dv){return;}
-  // ---- Multivariable ----
-  if(s.nIV==='many'){
-    if(s.dv==='cont') return setRec('多變項分析（連續結果）',
-      '多元線性迴歸 Multiple Linear Regression',
-      '若自變項全為類別 → ANOVA；連續與類別混合 → 共變數分析 ANCOVA。',
-      '有 2 個以上自變項且結果為連續時，用一般線性模式 (general linear model) 家族。可同時校正干擾因子 (confounders)，找出各自變項的獨立影響。原則：每個自變項至少要有 10 筆觀測值。 <span class="pg">p.174–176</span>');
-    if(s.dv==='dich') return setRec('多變項分析（二分結果）',
-      '多元邏輯斯迴歸 Multiple Logistic Regression',
-      '輸出勝算比 (odds ratio)，說明每增加一單位預測變項時「發生的勝算」變化。',
-      '結果是「是/否」型（如：發病 vs 未發病、恢復 vs 未恢復）且要校正多個因子時使用。臨床預測模型（如心肌梗塞風險評分）常用此法。 <span class="pg">p.179–180</span>');
-    if(s.dv==='tte') return setRec('多變項分析（存活/時間到事件）',
-      'Cox 比例風險模式 Cox Proportional Hazards Model',
-      '可處理追蹤中失聯 (loss to follow-up) 與設限 (censoring) 的資料。',
-      '結果是「時間相關的二分事件」（如：存活/死亡且在意發生時間）時使用；輸出風險比 (hazard ratio)。 <span class="pg">p.166, 180</span>');
-    if(s.dv==='ord') return setRec('多變項分析（順序結果）',
-      '順序邏輯斯迴歸 Ordinal Logistic Regression（延伸方法）',
-      '或視情況將結果重新編碼後採用一般線性模式家族。',
-      '順序型結果較少見於基礎課本；核心概念與其他多變項法相同——同時納入多個自變項並校正彼此影響。 <span class="pg">p.174 Table 11.1</span>');
-  }
-  // ---- Bivariate ----
-  if(s.dv==='tte') return setRec('存活分析（雙變項）',
-    'Kaplan-Meier 存活曲線 + Log-rank 檢定',
-    '亦可用生命表分析 Life Table Analysis 或人時法 Person-time methods。',
-    '當結果是「多久後發生事件」（存活、復發），並要比較兩組存活是否不同時使用。若需同時校正多個因子，改用 Cox 模式。 <span class="pg">p.164–167</span>');
-
-  if(s.dv==='dich'){
-    if(!s.iv) return;
-    if(s.iv==='two'){
-      if(!s.paired) return; // 等待「配對 vs 獨立」作答
-      if(s.paired==='paired') return setRec('類別資料（配對 2×2）',
-        'McNemar 檢定 McNemar Test',
-        '若配對且格內數字很小，可用精確版 McNemar / 二項檢定。',
-        '2×2 表且為配對／前後測資料（同一批人前後比較，或一對一配對受試者）時使用。它專門比較「前後改變方向不一致」的那兩格。 <span class="pg">p.159</span>');
-      return setRec('類別資料（獨立 2 組）',
-        '卡方獨立性檢定 Chi-square Test of Independence',
-        '若任一格期望次數過小（<5）→ 改用 Fisher 精確檢定 Fisher Exact Test；比較兩比例亦可用 z 檢定。',
-        '兩個獨立組別的類別結果（如治療組 vs 對照組的發病比例）。透過比較「觀察次數」與「期望次數」判斷關聯是否真實。 <span class="pg">p.156–160</span>');
-    }
-    // 自變項為 ≥3 組類別，或連續
-    return setRec('類別資料（多組／一般）',
-      '卡方獨立性檢定 Chi-square Test of Independence（R×C 列聯表）',
-      '小樣本用 Fisher 精確檢定；配對資料用 McNemar。',
-      '結果與自變項皆為類別時，用列聯表 (contingency table) 與卡方檢定判斷是否關聯。 <span class="pg">p.156–160</span>');
-  }
-
-  if(s.dv==='ord'){
-    if(s.iv==='cont') return setRec('順序資料（相關）',
-      'Spearman 或 Kendall 等級相關係數',null,
-      '兩變項中有順序型資料、或不符常態時，用等級 (rank) 為基礎的無母數相關。 <span class="pg">p.155</span>');
-    if(s.iv==='multi') return setRec('順序資料（≥3 組）',
-      'Kruskal-Wallis 檢定',null,
-      '比較 3 組以上、結果為順序或非常態連續資料的無母數方法（等同無母數版 ANOVA）。 <span class="pg">p.155</span>');
-    return setRec('順序資料（2 組）',
-      s.paired==='paired'?'Wilcoxon 配對符號等級檢定 Wilcoxon Matched-Pairs Signed-Ranks':'Mann-Whitney U 檢定',
-      null,
-      '順序型/非常態資料比較兩組時的無母數方法。配對用 Wilcoxon signed-ranks；獨立用 Mann-Whitney U。 <span class="pg">p.154</span>');
-  }
-
-  if(s.dv==='cont'){
-    if(!s.iv) return;
-    if(s.iv==='cont') return setRec('連續 vs 連續',
-      'Pearson 相關係數 + 簡單線性迴歸 Linear Regression',
-      '相關係數 r 看關聯強度與方向；迴歸看 x 每變動一單位、y 平均變動多少（斜率）。',
-      '兩個連續變項的關係（如身高與體重）。先畫聯合分布圖 (joint distribution graph) 檢查是否為直線關係，再算 r 與 R²。 <span class="pg">p.151–153</span>');
-    // 2 or multi groups
-    const nonpara = s.param==='nonpara';
-    if(s.iv==='multi') return setRec('連續結果 · ≥3 組比較',
-      nonpara?'Kruskal-Wallis 檢定（無母數）':'單因子變異數分析 One-way ANOVA',
-      nonpara?'資料若近常態可改用 ANOVA。':'資料偏斜/樣本小 → 改用無母數 Kruskal-Wallis。',
-      '比較 3 組以上的平均值（如 A藥/B藥/安慰劑的血壓）。ANOVA 用 F 比值比較「組間變異」與「組內變異」。 <span class="pg">p.142, 176</span>');
-    // two groups
-    if(s.paired==='paired') return setRec('連續結果 · 2 組配對/前後',
-      nonpara?'Wilcoxon 配對符號等級檢定（無母數）':'配對 t 檢定 Paired t-test',
-      nonpara?'資料近常態可改用配對 t 檢定。':'資料偏斜/樣本小 → 改用 Wilcoxon signed-ranks。',
-      '同一批人前後測、或配對比較連續結果（如治療前後血壓）。配對設計移除個體差異，檢定力較高。 <span class="pg">p.140, 154</span>');
-    return setRec('連續結果 · 2 組獨立',
-      nonpara?'Mann-Whitney U 檢定（無母數）':'兩樣本 t 檢定 Two-sample (independent) t-test',
-      nonpara?'資料近常態可改用兩樣本 t 檢定。':'資料偏斜/樣本小 → 改用 Mann-Whitney U。',
-      '比較兩個獨立組別的平均值（如治療組 vs 對照組的血壓）。t 檢定＝觀察差異 ÷ 差異的標準誤。 <span class="pg">p.136–140</span>');
-  }
-}
-function resetWizard(){
-  for(const k in state)state[k]=null;
-  document.querySelectorAll('.opts button').forEach(b=>b.classList.remove('sel'));
-  document.getElementById('rec').className='result empty';
-  document.getElementById('rec').innerHTML='👆 請從上方開始作答，我會即時建議適當的統計方法。';
-  updateVisibility();
-}
-updateVisibility();
 
 /* ============ CHAPTER CONTENT DATA ============ */
 const CH = {
@@ -714,5 +543,6 @@ window.addEventListener('afterprint',()=>{
   document.querySelectorAll('.print-target').forEach(e=>e.classList.remove('print-target'));
 });
 </script>
+<script src="assets/selectors.js"></script>
 </body>
 </html>

@@ -136,9 +136,7 @@
   <div class="card">
     <h2 class="title">🎯 研究設計選擇器 <span class="pill">Choosing a Research Design</span></h2>
     <p class="sub">依你的研究目的與可行性，依照課本第 5 章的分類，建議適當的流行病學研究設計。每個名詞附英文與白話說明。</p>
-    <div id="d-wiz"></div>
-    <div id="d-rec" class="result empty">👆 從上方開始作答，我會即時建議適當的研究設計。</div>
-    <button class="reset" onclick="resetD()">↺ 重新選擇</button>
+    <div data-selector="design"></div>
   </div>
   <div class="card">
     <h3 class="sec"><span class="em">🗺️</span>研究設計速查表 <span class="pg">課本 Ch5, p.68–75</span></h3>
@@ -160,9 +158,7 @@
   <div class="card">
     <h2 class="title">📏 測量指標選擇器 <span class="pill">Choosing an Epidemiologic Measure</span></h2>
     <p class="sub">你想「量化什麼」？依照課本第 2、6、7 章，建議該用哪個流行病學指標並說明白話意義與公式。</p>
-    <div id="m-wiz"></div>
-    <div id="m-rec" class="result empty">👆 從上方開始作答，我會即時建議適當的測量指標。</div>
-    <button class="reset" onclick="resetM()">↺ 重新選擇</button>
+    <div data-selector="measure"></div>
   </div>
   <div class="card">
     <h3 class="sec"><span class="em">🗺️</span>常用指標速查表 <span class="pg">Ch2 p.17–27 · Ch6 p.84–92 · Ch7 p.101–107</span></h3>
@@ -207,187 +203,6 @@ document.getElementById('tabs').addEventListener('click',e=>{
   document.getElementById('view-'+b.dataset.t).classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
 });
-
-/* ============ DESIGN SELECTOR ============ */
-const dq=[
- {id:'purpose',t:'Q1. 你的研究目的主要是？',h:'先確定你要「描述現況」還是「檢驗因果」。',
-  o:[['describe','描述現況 / 產生假設','看看疾病有多少、分布如何，或先找線索'],
-     ['test','檢驗因果假設','想證明「某暴露是否造成某疾病」']]},
- {id:'assign',t:'Q2. 你能「主動分配」暴露或介入給受試者嗎？',h:'能主動隨機分配＝實驗性；只能觀察既有情形＝觀察性。',
-  o:[['exp','能（可隨機分配介入）','由研究者決定誰接受介入'],
-     ['obs','不能（只能觀察）','暴露是受試者本來就有的（如吸菸）']]},
- {id:'level',t:'Q3. 你的資料是「個人層級」還是「群體層級」？',h:'個人＝每個人的暴露與疾病都有；群體＝只有整體平均/比率。',
-  o:[['indiv','個人層級 Individual','每位受試者的資料'],
-     ['group','群體層級 Ecologic','只有國家/地區的整體數據']]},
- {id:'dir',t:'Q4. 你打算怎麼追蹤時間方向？',h:'這決定世代 vs 病例對照 vs 橫斷。',
-  o:[['expfirst','從「暴露」開始，往後追是否發病','先分暴露/未暴露，追蹤結果 → 世代'],
-     ['disfirst','從「疾病」開始，往回問暴露','先找病例與對照，回溯暴露 → 病例對照'],
-     ['same','同一時間點同時測暴露與疾病','一次調查 → 橫斷']]},
- {id:'rare',t:'（補充）你的疾病或暴露屬於哪種情況？',h:'幫助在世代/病例對照間微調。',
-  o:[['rd','罕見「疾病」','病例對照較有效率'],
-     ['re','罕見「暴露」','世代較有效率'],
-     ['na','都不算罕見 / 不確定','依上題方向即可']]}
-];
-const dstate={};
-function renderWiz(container,defs,onchange){
-  const el=document.getElementById(container);
-  el.innerHTML=defs.map(q=>`<div class="q-block" data-qid="${q.id}"><h3>${q.t}</h3><p class="hint">${q.h}</p>
-    <div class="opts">${q.o.map(o=>`<button data-v="${o[0]}">${o[1]}<small>${o[2]}</small></button>`).join('')}</div></div>`).join('');
-  el.querySelectorAll('.q-block').forEach(qb=>{
-    qb.querySelector('.opts').addEventListener('click',e=>{
-      const b=e.target.closest('button'); if(!b)return;
-      qb.querySelectorAll('button').forEach(x=>x.classList.remove('sel'));
-      b.classList.add('sel'); onchange(qb.dataset.qid,b.dataset.v);
-    });
-  });
-}
-function showQ(container,qid,on){
-  const q=document.querySelector(`#${container} [data-qid="${qid}"]`); if(q)q.style.display=on?'':'none';
-}
-function setRec(elid,title,rec,alt,why){
-  const el=document.getElementById(elid);el.className='result';
-  el.innerHTML=`<h3>✅ ${title}</h3><div class="rec">${rec}</div>${alt?`<div class="alt">${alt}</div>`:''}<div class="why">${why}</div>`;
-}
-renderWiz('d-wiz',dq,(id,v)=>{dstate[id]=v;dVis();dRec();});
-function dVis(){
-  const s=dstate;
-  showQ('d-wiz','assign', s.purpose==='test');
-  showQ('d-wiz','level', s.purpose==='describe' || (s.purpose==='test'&&s.assign==='obs'));
-  const obsIndiv = (s.purpose==='describe'&&s.level==='indiv') || (s.purpose==='test'&&s.assign==='obs'&&s.level==='indiv');
-  showQ('d-wiz','dir', obsIndiv);
-  showQ('d-wiz','rare', obsIndiv && (s.dir==='expfirst'||s.dir==='disfirst'));
-}
-function dRec(){
-  const s=dstate; if(!s.purpose) return;
-  if(s.purpose==='test'){
-    if(!s.assign) return;
-    if(s.assign==='exp') return setRec('d-rec','實驗性設計（因果證據最強）',
-      '隨機對照試驗 Randomized Controlled Trial (RCT)',
-      '若在社區/健康人群測預防措施 → 田野試驗 Field trial。',
-      '你能主動隨機分配介入，這是判斷因果最有力的設計；隨機化讓兩組在已知與未知因子上可比。 <span class="pg">Ch5 p.73–75</span>');
-  }
-  if(!s.level) return;
-  if(s.level==='group') return setRec('d-rec','生態研究',
-    '生態研究 Ecologic Study（橫斷或縱貫）',null,
-    '只用群體層級資料（如各國平均攝取量 vs 疾病率）。快速、便宜、常用於產生假設，但小心生態謬誤 (ecologic fallacy)——群體關係不等於個人關係。 <span class="pg">Ch5 p.70</span>');
-  // individual level
-  if(s.purpose==='describe' && !s.dir)
-    return setRec('d-rec','描述性/產生假設',
-      '橫斷調查 Cross-sectional Survey（或病例系列/質性研究）',null,
-      '個人層級、想描述現況或找線索：橫斷調查可得盛行率；少數個案用病例報告/系列；深入探索用質性研究。 <span class="pg">Ch5 p.69</span>');
-  if(!s.dir) return;
-  if(s.dir==='same') return setRec('d-rec','橫斷研究',
-    '橫斷研究 Cross-sectional Study',null,
-    '同一時間點同時測「暴露」與「疾病」，可得盛行率。缺點：無法判斷誰先誰後（因果方向不明）。 <span class="pg">Ch5 p.69–70</span>');
-  if(s.dir==='expfirst'){
-    const t=s.rare==='rd'?'（提醒：疾病罕見時世代較不划算，可考慮病例對照）':'';
-    return setRec('d-rec','世代研究',
-      '世代研究 Cohort Study（前瞻或回溯）',
-      '適合「罕見暴露」與需要發生率、時序性的研究；可直接算相對風險 RR。'+t,
-      '先依暴露/未暴露分組，往後追蹤誰發病。優點：能確立時序、算發生率與 RR；缺點：耗時、費用高，罕見病需極大樣本。 <span class="pg">Ch5 p.70–72</span>');
-  }
-  if(s.dir==='disfirst'){
-    const t=s.rare==='re'?'（提醒：暴露罕見時病例對照較不利，可考慮世代）':'';
-    return setRec('d-rec','病例對照研究',
-      '病例對照研究 Case-Control Study',
-      '特別適合「罕見疾病」、省時省錢；結果以勝算比 OR 表示。'+t,
-      '先找病例與對照，回溯比較暴露史。優點：快、便宜、適合罕見病與長潛伏期疾病；缺點：易有回憶偏差 (recall bias)、不能直接算發生率。經典例：DES 與陰道腺癌。 <span class="pg">Ch5 p.72–73</span>');
-  }
-}
-function resetD(){for(const k in dstate)delete dstate[k];
-  document.querySelectorAll('#d-wiz button').forEach(b=>b.classList.remove('sel'));
-  document.getElementById('d-rec').className='result empty';
-  document.getElementById('d-rec').innerHTML='👆 從上方開始作答，我會即時建議適當的研究設計。';dVis();}
-
-/* ============ MEASURE SELECTOR ============ */
-const mq=[
- {id:'goal',t:'Q1. 你想「量化」什麼？',h:'先選大方向。',
-  o:[['freq','疾病發生的頻率','有多少人得病'],
-     ['compare','比較兩組的風險','暴露 vs 未暴露誰風險高'],
-     ['benefit','介入/治療的效益','治療能減少多少壞結果'],
-     ['test','診斷檢驗的表現','這個檢驗準不準'],
-     ['agree','兩位判讀者的一致性','兩人判讀有多一致']]},
- {id:'freqtype',t:'Q2. 頻率：你關心「新發生」還是「當下總量」？',h:'',
-  o:[['new','新發生的病例（有追蹤時間）','一段期間內新診斷'],
-     ['exist','某時點所有病例（新+舊）','此刻有多少人有病']]},
- {id:'comptype',t:'Q2. 比較：你要哪一種比較？',h:'',
-  o:[['rel','相對比較（幾倍）','風險是幾倍'],
-     ['abs','絕對差異（差多少）','風險相差多少個百分點'],
-     ['pop','族群層級可預防比例','整個族群能少掉多少疾病']]},
- {id:'design',t:'Q3. 相對比較：你的研究設計是？',h:'設計決定用 RR 還是 OR。',
-  o:[['cohort','世代 / RCT','從暴露追到疾病'],
-     ['cc','病例對照','從疾病回推暴露']]},
- {id:'testtype',t:'Q2. 檢驗表現：你最在意哪一面？',h:'',
-  o:[['se','抓出病人／排除疾病的能力','敏感度 / 特異度'],
-     ['ppv','驗陽性後真的有病的機率','預測值 PPV / NPV（受盛行率影響）'],
-     ['lr','不受盛行率影響的整體效能','概似比 LR / ROC 曲線']]}
-];
-const mstate={};
-renderWiz('m-wiz',mq,(id,v)=>{mstate[id]=v;mVis();mRec();});
-function mVis(){
-  const s=mstate;
-  showQ('m-wiz','freqtype', s.goal==='freq');
-  showQ('m-wiz','comptype', s.goal==='compare');
-  showQ('m-wiz','design', s.goal==='compare'&&s.comptype==='rel');
-  showQ('m-wiz','testtype', s.goal==='test');
-}
-function mRec(){
-  const s=mstate; if(!s.goal) return;
-  if(s.goal==='freq'){
-    if(!s.freqtype) return;
-    if(s.freqtype==='new') return setRec('m-rec','發生（新病例）',
-      '發生率 Incidence（累積發生率 / 發生密度 Incidence density）',
-      '有人時 (person-time) 資料時用發生密度（率）。',
-      '一段期間內「新」病例數 ÷ 期初風險人口（或人時）。反映「變成病人的速度」，是研究病因與風險的核心。 <span class="pg">Ch2 p.17, 23</span>');
-    return setRec('m-rec','盛行（當下總量）',
-      '盛行率 Prevalence（點盛行率 / 期間盛行率）',null,
-      '某時點所有（新+舊）病例 ÷ 總人口。反映「疾病負擔」，適合規劃醫療資源。關係式：盛行率 ≈ 發生率 × 病程。 <span class="pg">Ch2 p.17–19</span>');
-  }
-  if(s.goal==='compare'){
-    if(!s.comptype) return;
-    if(s.comptype==='rel'){
-      if(!s.design) return;
-      if(s.design==='cohort') return setRec('m-rec','相對比較（世代/RCT）',
-        '相對風險 Relative Risk / Risk Ratio (RR)',
-        'RR = 暴露組風險 ÷ 未暴露組風險。',
-        'RR=1 代表無差異；RR>1 代表暴露組風險較高。需要能直接算「風險」，故用於世代/RCT。 <span class="pg">Ch6 p.85</span>');
-      return setRec('m-rec','相對比較（病例對照）',
-        '勝算比 Odds Ratio (OR)',
-        'OR = ad ÷ bc（2×2 表）。',
-        '病例對照研究無法直接算風險，改用勝算比；當疾病罕見時，OR 近似 RR。 <span class="pg">Ch6 p.86</span>');
-    }
-    if(s.comptype==='abs') return setRec('m-rec','絕對差異',
-      '歸因風險 Attributable Risk (AR) / 風險差 Risk difference',null,
-      'AR = 暴露組風險 − 未暴露組風險，代表「暴露多造成的絕對超額風險」。用於評估暴露對個人的實際衝擊。 <span class="pg">Ch6 p.84, 87</span>');
-    return setRec('m-rec','族群層級',
-      '族群歸因風險 Population Attributable Risk (PAR / PAR%)',null,
-      '若移除該暴露，整個族群可減少多少疾病。同時取決於「風險比」與「暴露盛行率」——常見暴露即使 RR 不大，PAR 也可能很高。 <span class="pg">Ch6 p.88</span>');
-  }
-  if(s.goal==='benefit') return setRec('m-rec','介入效益',
-    'ARR（絕對風險下降）、RRR（相對風險下降）、NNT（益一需治數）',
-    'NNT = 1 ÷ ARR；越小代表越有效。',
-    'ARR＝對照組風險−治療組風險；RRR＝ARR÷對照組風險。NNT 表示「需治療幾人才能讓 1 人受益」。例：療法使 1/3 難治潰瘍癒合，ARR=0.333 → NNT=3。 <span class="pg">Ch6 p.90–92</span>');
-  if(s.goal==='test'){
-    if(!s.testtype) return;
-    if(s.testtype==='se') return setRec('m-rec','檢驗表現：抓病/排除',
-      '敏感度 Sensitivity / 特異度 Specificity',null,
-      '敏感度＝真的有病者中被驗出陽性的比例（高→適合篩檢、排除疾病）；特異度＝健康者中被驗出陰性的比例（高→適合確診）。 <span class="pg">Ch7 p.101</span>');
-    if(s.testtype==='ppv') return setRec('m-rec','檢驗表現：預測值',
-      '陽性預測值 PPV / 陰性預測值 NPV',null,
-      'PPV＝驗陽者中真的有病的比例，強烈受「盛行率」影響——盛行率低時 PPV 會偏低。 <span class="pg">Ch7 p.102</span>');
-    return setRec('m-rec','檢驗表現：整體效能',
-      '概似比 Likelihood Ratio (LR) / ROC 曲線',null,
-      'LR 由敏感度與特異度組成、不受盛行率影響，適合比較檢驗整體效能；ROC 曲線協助選最佳切點 (cutoff)。 <span class="pg">Ch7 p.103–105</span>');
-  }
-  if(s.goal==='agree') return setRec('m-rec','判讀一致性',
-    'Kappa (κ) 一致性檢定',null,
-    'Kappa 衡量「扣掉純靠運氣的一致」後，兩位觀察者真正的一致程度。0＝只和運氣一樣，1＝完全一致。 <span class="pg">Ch7 p.107</span>');
-}
-function resetM(){for(const k in mstate)delete mstate[k];
-  document.querySelectorAll('#m-wiz button').forEach(b=>b.classList.remove('sel'));
-  document.getElementById('m-rec').className='result empty';
-  document.getElementById('m-rec').innerHTML='👆 從上方開始作答，我會即時建議適當的測量指標。';mVis();}
-dVis();mVis();
 
 /* ============ CHAPTER DATA ============ */
 const CH={
@@ -677,5 +492,6 @@ function printOne(key){document.body.classList.add('printing-one');document.getE
 window.addEventListener('afterprint',()=>{document.body.classList.remove('printing-all','printing-one');
   document.querySelectorAll('.print-target').forEach(e=>e.classList.remove('print-target'));});
 </script>
+<script src="assets/selectors.js"></script>
 </body>
 </html>

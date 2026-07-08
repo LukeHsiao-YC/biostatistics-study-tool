@@ -60,6 +60,22 @@
   .link:hover{text-decoration:underline}
   .soonbox{text-align:center;color:var(--muted);padding:40px 20px}
   .soonbox .big{font-size:34px;margin-bottom:10px}
+  .flow{margin-top:6px}
+  .phase{font-size:12px;font-weight:800;letter-spacing:1px;color:var(--brand);text-transform:uppercase;margin:16px 0 8px 54px}
+  .step{display:flex;gap:16px}
+  .step .rail{position:relative;width:38px;flex:0 0 38px;display:flex;justify-content:center}
+  .step .num{width:34px;height:34px;border-radius:50%;background:var(--brand);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;z-index:2}
+  .step.concept .num{background:#9aa2b1}
+  .step .line{position:absolute;top:0;bottom:-12px;left:50%;width:2px;background:var(--line);transform:translateX(-50%);z-index:1}
+  .step:last-child .line{display:none}
+  .step .body{flex:1;background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 16px;margin-bottom:12px;box-shadow:var(--shadow)}
+  .step .body h4{margin:0 0 2px;font-size:15px}
+  .step .body h4 .en{font-weight:600;font-size:12.5px;color:var(--brand2);font-style:italic}
+  .step .body p{margin:4px 0 9px;font-size:13.3px;color:#41505f}
+  .step .meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .step .src{font-size:11.5px;font-weight:700;color:var(--muted);background:var(--chip);border-radius:999px;padding:3px 10px}
+  .step .toolbtn{border:0;background:var(--brand);color:#fff;font-family:inherit;font-size:12.5px;font-weight:700;padding:6px 12px;border-radius:8px;cursor:pointer;transition:.12s}
+  .step .toolbtn:hover{background:#4a3a78}
   footer{text-align:center;color:var(--muted);font-size:12.5px;padding:20px}
 </style>
 </head>
@@ -73,7 +89,8 @@
 </header>
 
 <nav class="tabs wrap" id="tabs">
-  <button data-t="design" class="active">研究設計選擇器</button>
+  <button data-t="flow" class="active">🔄 研究設計完整流程</button>
+  <button data-t="design">研究設計選擇器</button>
   <button data-t="measure">測量指標選擇器</button>
   <button data-t="stat">統計方法選擇器</button>
   <button data-t="prevention">預防策略選擇器</button>
@@ -83,7 +100,75 @@
 
 <main class="wrap">
 
-  <section id="view-design" class="view active">
+  <section id="view-flow" class="view active">
+    <div class="card">
+      <h2 class="title">🔄 研究設計完整流程 <span class="pill">The Research Workflow</span></h2>
+      <p class="sub">從「想研究什麼」到「轉化為行動」的完整路徑，並標示每一步該用哪一個選擇器模組（點按鈕可直接跳到該工具）。</p>
+      <div class="flow">
+
+        <div class="phase">階段一 · 構思 Conceive</div>
+        <div class="step concept">
+          <div class="rail"><div class="line"></div><div class="num">1</div></div>
+          <div class="body"><h4>界定研究問題與假設 <span class="en">Frame the question</span></h4>
+            <p>用疾病三角（宿主–病原–環境）與 BEINGS 模式盤點可能的危險因子與因果，寫出「可被檢驗」的假設。</p>
+            <div class="meta"><span class="src">Section 1 · Ch1, Ch4（概念）</span></div></div>
+        </div>
+        <div class="step">
+          <div class="rail"><div class="line"></div><div class="num">2</div></div>
+          <div class="body"><h4>選擇研究設計 <span class="en">Choose a design</span></h4>
+            <p>依研究目的（描述現況／檢驗因果）與可行性，決定 RCT、世代、病例對照、橫斷或生態研究。</p>
+            <div class="meta"><span class="src">Section 1 · Ch5</span><button class="toolbtn" onclick="goTool('design')">→ 研究設計選擇器</button></div></div>
+        </div>
+
+        <div class="phase">階段二 · 設計 Design</div>
+        <div class="step">
+          <div class="rail"><div class="line"></div><div class="num">3</div></div>
+          <div class="body"><h4>決定測量指標 <span class="en">Pick your measures</span></h4>
+            <p>要量化什麼？發生率／盛行率、RR／OR、歸因風險、NNT，或檢驗表現（敏感度、特異度、PPV…）。</p>
+            <div class="meta"><span class="src">Section 1 · Ch2, Ch6, Ch7</span><button class="toolbtn" onclick="goTool('measure')">→ 測量指標選擇器</button></div></div>
+        </div>
+        <div class="step concept">
+          <div class="rail"><div class="line"></div><div class="num">4</div></div>
+          <div class="body"><h4>樣本數・隨機化・多重假設 <span class="en">Power & randomization</span></h4>
+            <p>事前計算樣本數以確保檢定力（power），規劃隨機分派，並控制多重比較（如 Bonferroni）。</p>
+            <div class="meta"><span class="src">Section 2 · Ch12（見講義）</span></div></div>
+        </div>
+
+        <div class="phase">階段三 · 分析 Analyze</div>
+        <div class="step concept">
+          <div class="rail"><div class="line"></div><div class="num">5</div></div>
+          <div class="body"><h4>描述資料與檢定假設 <span class="en">Describe & test</span></h4>
+            <p>先描述變異與分布，設定虛無假設與 α 水準，進行假設檢定並解讀 p 值與信賴區間。</p>
+            <div class="meta"><span class="src">Section 2 · Ch8, Ch9（見講義）</span></div></div>
+        </div>
+        <div class="step">
+          <div class="rail"><div class="line"></div><div class="num">6</div></div>
+          <div class="body"><h4>選擇統計方法 <span class="en">Choose a statistical test</span></h4>
+            <p>依結果變項型態與研究設計，選 t 檢定、卡方、ANOVA、相關／迴歸、存活分析或多變項模式。</p>
+            <div class="meta"><span class="src">Section 2 · Ch10, Ch11</span><button class="toolbtn" onclick="goTool('stat')">→ 統計方法選擇器</button></div></div>
+        </div>
+
+        <div class="phase">階段四 · 應用 Apply / Translate</div>
+        <div class="step">
+          <div class="rail"><div class="line"></div><div class="num">7</div></div>
+          <div class="body"><h4>轉化為預防決策 <span class="en">Translate to prevention</span></h4>
+            <p>依疾病階段判斷屬初段／次段／三段預防；若涉及篩檢，檢核疾病、檢驗、醫療體系三大最低要求。</p>
+            <div class="meta"><span class="src">Section 3</span>
+              <button class="toolbtn" onclick="goTool('prevention')">→ 預防策略選擇器</button>
+              <button class="toolbtn" onclick="goTool('screening')">→ 篩檢適當性檢核</button></div></div>
+        </div>
+        <div class="step">
+          <div class="rail"><div class="line"></div><div class="num">8</div></div>
+          <div class="body"><h4>轉化為公衛行動 <span class="en">Translate to public-health action</span></h4>
+            <p>對接公衛核心功能、災難應變、照護品質、醫療政策財源或 One Health，把證據變成行動。</p>
+            <div class="meta"><span class="src">Section 4</span><button class="toolbtn" onclick="goTool('navigator')">→ 公共衛生行動導覽</button></div></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="view-design" class="view">
     <div class="card">
       <span class="tag">Section 1 · 流行病學</span>
       <h2 class="title">🎯 研究設計選擇器 <span class="pill">Choosing a Research Design</span></h2>
@@ -151,6 +236,7 @@ document.getElementById('tabs').addEventListener('click',e=>{
   document.getElementById('view-'+b.dataset.t).classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
 });
+function goTool(t){const b=document.querySelector('#tabs button[data-t="'+t+'"]'); if(b)b.click();}
 </script>
 <script src="assets/selectors.js"></script>
 </body>
